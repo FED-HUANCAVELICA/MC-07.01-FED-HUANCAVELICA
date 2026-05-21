@@ -26,7 +26,7 @@
             line-height: 1.6;
         }
 
-        /* HEADER CON LOGO */
+        /* HEADER */
         .header {
             background: linear-gradient(135deg, var(--primary) 0%, #0d3b4c 100%);
             color: white;
@@ -115,11 +115,13 @@
             align-items: center;
             transition: border-color 0.2s;
             font-size: 0.9rem;
+            user-select: none;
         }
         .multiselect-trigger:hover { border-color: var(--primary); }
         .multiselect-trigger.active {
             border-color: var(--primary);
             border-radius: 10px 10px 0 0;
+            border-bottom-color: transparent;
         }
         .multiselect-trigger .arrow {
             transition: transform 0.2s;
@@ -138,7 +140,7 @@
             border: 2px solid var(--primary);
             border-top: none;
             border-radius: 0 0 10px 10px;
-            max-height: 300px;
+            max-height: 350px;
             overflow-y: auto;
             z-index: 1000;
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
@@ -152,6 +154,7 @@
             gap: 10px;
             transition: background 0.15s;
             font-size: 0.88rem;
+            border-bottom: 1px solid #f0f0f0;
         }
         .multiselect-option:hover { background: #f0f7ff; }
         .multiselect-option input[type="checkbox"] {
@@ -159,6 +162,12 @@
             height: 18px;
             cursor: pointer;
             accent-color: var(--primary);
+            flex-shrink: 0;
+        }
+        .multiselect-option label {
+            cursor: pointer;
+            flex: 1;
+            user-select: none;
         }
         .multiselect-option .count {
             margin-left: auto;
@@ -167,30 +176,36 @@
             border-radius: 10px;
             font-size: 0.75rem;
             color: #666;
+            flex-shrink: 0;
         }
         .multiselect-actions {
             display: flex;
             gap: 8px;
             padding: 10px 15px;
-            border-top: 1px solid var(--border);
+            border-top: 2px solid var(--border);
             background: #fafafa;
+            position: sticky;
+            bottom: 0;
         }
         .btn-mini {
-            padding: 5px 12px;
+            padding: 6px 14px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             font-weight: 600;
+            transition: all 0.2s;
         }
         .btn-mini.primary {
             background: var(--primary);
             color: white;
         }
+        .btn-mini.primary:hover { background: #144a5e; }
         .btn-mini.secondary {
-            background: var(--bg);
+            background: #e0e0e0;
             color: var(--text);
         }
+        .btn-mini.secondary:hover { background: #d0d0d0; }
         .selected-tags {
             display: flex;
             flex-wrap: wrap;
@@ -207,13 +222,20 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            animation: fadeIn 0.2s ease;
         }
         .selected-tag .remove {
             cursor: pointer;
             font-weight: bold;
             opacity: 0.8;
+            font-size: 1rem;
+            line-height: 1;
         }
         .selected-tag .remove:hover { opacity: 1; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
 
         /* CONTAINER */
         .container {
@@ -311,7 +333,7 @@
             height: 100%;
             border-radius: 10px;
             background: linear-gradient(90deg, var(--success) 0%, #27ae60 100%);
-            transition: width 1s ease;
+            transition: width 1.5s ease;
             display: flex;
             align-items: center;
             justify-content: flex-end;
@@ -320,6 +342,7 @@
             font-weight: 700;
             font-size: 1rem;
             width: 0%;
+            min-width: 50px;
         }
         .progress-bar.warning-bar {
             background: linear-gradient(90deg, var(--warning) 0%, #e67e22 100%);
@@ -573,74 +596,74 @@
     <div class="filter-bar">
         <div class="filter-bar-inner">
             <div class="multiselect-container">
-                <label class="filter-label">🎯 Filtrar por Tipo de Cargo (puedes seleccionar varios):</label>
-                <div class="multiselect-trigger" id="cargoTrigger" onclick="toggleDropdown()">
+                <label class="filter-label">🎯 Filtrar por Tipo de Cargo (selecciona varios):</label>
+                <div class="multiselect-trigger" id="cargoTrigger">
                     <span id="cargoTriggerText">Todos los cargos seleccionados</span>
                     <span class="arrow">▼</span>
                 </div>
                 <div class="multiselect-dropdown" id="cargoDropdown">
-                    <div class="multiselect-option" onclick="event.stopPropagation(); toggleAllCargos(true)">
-                        <input type="checkbox" id="checkAll" checked onchange="toggleAllCargos(this.checked)">
-                        <label for="checkAll" style="cursor:pointer; flex:1;"><strong>Seleccionar todos</strong></label>
+                    <div class="multiselect-option" id="optionAll">
+                        <input type="checkbox" id="checkAll" checked>
+                        <label for="checkAll"><strong>Seleccionar todos</strong></label>
                     </div>
-                    <div class="multiselect-option" onclick="event.stopPropagation(); toggleCargo('Auxiliar')">
-                        <input type="checkbox" id="cargo_Auxiliar" value="Auxiliar" checked onchange="toggleCargo('Auxiliar')">
-                        <label for="cargo_Auxiliar" style="cursor:pointer; flex:1;">Auxiliar</label>
+                    <div class="multiselect-option" data-cargo="Auxiliar">
+                        <input type="checkbox" id="cargo_Auxiliar" value="Auxiliar" checked>
+                        <label for="cargo_Auxiliar">Auxiliar</label>
                         <span class="count">8</span>
                     </div>
-                    <div class="multiselect-option" onclick="event.stopPropagation(); toggleCargo('Coordinador(a) SAANEE')">
-                        <input type="checkbox" id="cargo_Coordinadora_SAANEE" value="Coordinador(a) SAANEE" checked onchange="toggleCargo('Coordinador(a) SAANEE')">
-                        <label for="cargo_Coordinadora_SAANEE" style="cursor:pointer; flex:1;">Coordinador(a) SAANEE</label>
+                    <div class="multiselect-option" data-cargo="Coordinador(a) SAANEE">
+                        <input type="checkbox" id="cargo_Coordinadora_SAANEE" value="Coordinador(a) SAANEE" checked>
+                        <label for="cargo_Coordinadora_SAANEE">Coordinador(a) SAANEE</label>
                         <span class="count">17</span>
                     </div>
-                    <div class="multiselect-option" onclick="event.stopPropagation(); toggleCargo('Director(a) con aula')">
-                        <input type="checkbox" id="cargo_Directora_con_aula" value="Director(a) con aula" checked onchange="toggleCargo('Director(a) con aula')">
-                        <label for="cargo_Directora_con_aula" style="cursor:pointer; flex:1;">Director(a) con aula</label>
+                    <div class="multiselect-option" data-cargo="Director(a) con aula">
+                        <input type="checkbox" id="cargo_Directora_con_aula" value="Director(a) con aula" checked>
+                        <label for="cargo_Directora_con_aula">Director(a) con aula</label>
                         <span class="count">28</span>
                     </div>
-                    <div class="multiselect-option" onclick="event.stopPropagation(); toggleCargo('Director(a) sin aula')">
-                        <input type="checkbox" id="cargo_Directora_sin_aula" value="Director(a) sin aula" checked onchange="toggleCargo('Director(a) sin aula')">
-                        <label for="cargo_Directora_sin_aula" style="cursor:pointer; flex:1;">Director(a) sin aula</label>
+                    <div class="multiselect-option" data-cargo="Director(a) sin aula">
+                        <input type="checkbox" id="cargo_Directora_sin_aula" value="Director(a) sin aula" checked>
+                        <label for="cargo_Directora_sin_aula">Director(a) sin aula</label>
                         <span class="count">2</span>
                     </div>
-                    <div class="multiselect-option" onclick="event.stopPropagation(); toggleCargo('Docente/Tutor de aula')">
-                        <input type="checkbox" id="cargo_Docente_Tutor_de_aula" value="Docente/Tutor de aula" checked onchange="toggleCargo('Docente/Tutor de aula')">
-                        <label for="cargo_Docente_Tutor_de_aula" style="cursor:pointer; flex:1;">Docente/Tutor de aula</label>
+                    <div class="multiselect-option" data-cargo="Docente/Tutor de aula">
+                        <input type="checkbox" id="cargo_Docente_Tutor_de_aula" value="Docente/Tutor de aula" checked>
+                        <label for="cargo_Docente_Tutor_de_aula">Docente/Tutor de aula</label>
                         <span class="count">43</span>
                     </div>
-                    <div class="multiselect-option" onclick="event.stopPropagation(); toggleCargo('PSICÓLOGA')">
-                        <input type="checkbox" id="cargo_PSICÓLOGA" value="PSICÓLOGA" checked onchange="toggleCargo('PSICÓLOGA')">
-                        <label for="cargo_PSICÓLOGA" style="cursor:pointer; flex:1;">PSICÓLOGA</label>
+                    <div class="multiselect-option" data-cargo="PSICÓLOGA">
+                        <input type="checkbox" id="cargo_PSICOLOGA" value="PSICÓLOGA" checked>
+                        <label for="cargo_PSICOLOGA">PSICÓLOGA</label>
                         <span class="count">1</span>
                     </div>
-                    <div class="multiselect-option" onclick="event.stopPropagation(); toggleCargo('Profesional SAANEE')">
-                        <input type="checkbox" id="cargo_Profesional_SAANEE" value="Profesional SAANEE" checked onchange="toggleCargo('Profesional SAANEE')">
-                        <label for="cargo_Profesional_SAANEE" style="cursor:pointer; flex:1;">Profesional SAANEE</label>
+                    <div class="multiselect-option" data-cargo="Profesional SAANEE">
+                        <input type="checkbox" id="cargo_Profesional_SAANEE" value="Profesional SAANEE" checked>
+                        <label for="cargo_Profesional_SAANEE">Profesional SAANEE</label>
                         <span class="count">17</span>
                     </div>
-                    <div class="multiselect-option" onclick="event.stopPropagation(); toggleCargo('Psicólogo(a)')">
-                        <input type="checkbox" id="cargo_Psicólogoa" value="Psicólogo(a)" checked onchange="toggleCargo('Psicólogo(a)')">
-                        <label for="cargo_Psicólogoa" style="cursor:pointer; flex:1;">Psicólogo(a)</label>
+                    <div class="multiselect-option" data-cargo="Psicólogo(a)">
+                        <input type="checkbox" id="cargo_Psicologoa" value="Psicólogo(a)" checked>
+                        <label for="cargo_Psicologoa">Psicólogo(a)</label>
                         <span class="count">1</span>
                     </div>
-                    <div class="multiselect-option" onclick="event.stopPropagation(); toggleCargo('TECNÓLOGO MÉDICO')">
-                        <input type="checkbox" id="cargo_TECNÓLOGO_MÉDICO" value="TECNÓLOGO MÉDICO" checked onchange="toggleCargo('TECNÓLOGO MÉDICO')">
-                        <label for="cargo_TECNÓLOGO_MÉDICO" style="cursor:pointer; flex:1;">TECNÓLOGO MÉDICO</label>
+                    <div class="multiselect-option" data-cargo="TECNÓLOGO MÉDICO">
+                        <input type="checkbox" id="cargo_TECNOLOGO_MÉDICO" value="TECNÓLOGO MÉDICO" checked>
+                        <label for="cargo_TECNOLOGO_MÉDICO">TECNÓLOGO MÉDICO</label>
                         <span class="count">21</span>
                     </div>
-                    <div class="multiselect-option" onclick="event.stopPropagation(); toggleCargo('Tecnólogo Médico')">
-                        <input type="checkbox" id="cargo_Tecnólogo_Médico" value="Tecnólogo Médico" checked onchange="toggleCargo('Tecnólogo Médico')">
-                        <label for="cargo_Tecnólogo_Médico" style="cursor:pointer; flex:1;">Tecnólogo Médico</label>
+                    <div class="multiselect-option" data-cargo="Tecnólogo Médico">
+                        <input type="checkbox" id="cargo_Tecnologo_Médico" value="Tecnólogo Médico" checked>
+                        <label for="cargo_Tecnologo_Médico">Tecnólogo Médico</label>
                         <span class="count">1</span>
                     </div>
-                    <div class="multiselect-option" onclick="event.stopPropagation(); toggleCargo('Trabajador Social')">
-                        <input type="checkbox" id="cargo_Trabajador_Social" value="Trabajador Social" checked onchange="toggleCargo('Trabajador Social')">
-                        <label for="cargo_Trabajador_Social" style="cursor:pointer; flex:1;">Trabajador Social</label>
+                    <div class="multiselect-option" data-cargo="Trabajador Social">
+                        <input type="checkbox" id="cargo_Trabajador_Social" value="Trabajador Social" checked>
+                        <label for="cargo_Trabajador_Social">Trabajador Social</label>
                         <span class="count">2</span>
                     </div>
                     <div class="multiselect-actions">
-                        <button class="btn-mini primary" onclick="event.stopPropagation(); applyCargoFilter()">✓ Aplicar</button>
-                        <button class="btn-mini secondary" onclick="event.stopPropagation(); clearCargoFilter()">✗ Limpiar</button>
+                        <button class="btn-mini primary" id="btnApply">✓ Aplicar</button>
+                        <button class="btn-mini secondary" id="btnClear">✗ Limpiar</button>
                     </div>
                 </div>
                 <div class="selected-tags" id="selectedTags"></div>
@@ -653,32 +676,32 @@
         <div class="kpi-grid" id="kpiGrid">
             <div class="kpi-card success">
                 <div class="kpi-label">Avance Actual</div>
-                <div class="kpi-value" id="kpiAvance">39.8%<span class="kpi-trend trend-up">▲ META SUPERADA</span></div>
-                <div class="kpi-sub">Meta FED: 37% | Superado por 2.8 pp</div>
+                <div class="kpi-value" id="kpiAvance">--</div>
+                <div class="kpi-sub" id="kpiAvanceSub">Meta FED: 37%</div>
             </div>
             <div class="kpi-card info">
                 <div class="kpi-label">Denominador</div>
-                <div class="kpi-value" id="kpiDenominador">133</div>
+                <div class="kpi-value" id="kpiDenominador">--</div>
                 <div class="kpi-sub">Docentes y agentes educativos EBE</div>
             </div>
             <div class="kpi-card success">
                 <div class="kpi-label">Numerador (Culminados)</div>
-                <div class="kpi-value" id="kpiNumerador">53</div>
+                <div class="kpi-value" id="kpiNumerador">--</div>
                 <div class="kpi-sub">Docentes que aprobaron al menos un curso</div>
             </div>
             <div class="kpi-card warning">
                 <div class="kpi-label">En Curso (Proyección)</div>
-                <div class="kpi-value" id="kpiCurso">33</div>
+                <div class="kpi-value" id="kpiCurso">--</div>
                 <div class="kpi-sub">Inscritos que están terminando cursos</div>
             </div>
             <div class="kpi-card danger">
                 <div class="kpi-label">No Inscritos</div>
-                <div class="kpi-value" id="kpiNoInscrito">40</div>
+                <div class="kpi-value" id="kpiNoInscrito">--</div>
                 <div class="kpi-sub">Docentes sin inscripción aún</div>
             </div>
             <div class="kpi-card info">
                 <div class="kpi-label">Total Registrados</div>
-                <div class="kpi-value" id="kpiTotal">141</div>
+                <div class="kpi-value" id="kpiTotal">--</div>
                 <div class="kpi-sub">Según filtro de cargos aplicado</div>
             </div>
         </div>
@@ -698,15 +721,15 @@
             <div class="progress-legend">
                 <div class="legend-item">
                     <div class="legend-dot" style="background: var(--success);"></div>
-                    <span id="legendCulminados">Culminados (39.8%)</span>
+                    <span id="legendCulminados">Culminados</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: var(--warning);"></div>
-                    <span id="legendCurso">En Curso (24.8%)</span>
+                    <span id="legendCurso">En Curso</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: var(--danger);"></div>
-                    <span id="legendNoInsc">No Inscritos (30.1%)</span>
+                    <span id="legendNoInsc">No Inscritos</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: var(--secondary);"></div>
@@ -748,29 +771,8 @@
 
         <!-- ALERTS -->
         <div class="alerts-section" id="alertsSection">
-            <h3>🚨 Alertas Críticas <span class="alert-badge" id="alertCount">5</span></h3>
-            <div id="alertsContainer">
-                <div class="alert-item critical">
-                    <span class="alert-icon">⚠️</span>
-                    <div><strong>UGEL Surcubamba:</strong> 0% de avance. 4 docentes sin inscripción. Requiere acción inmediata.</div>
-                </div>
-                <div class="alert-item critical">
-                    <span class="alert-icon">⚠️</span>
-                    <div><strong>UGEL Castrovirreyna:</strong> 50% sin inscripción (3 de 6 docentes). 1 docente con curso en progreso.</div>
-                </div>
-                <div class="alert-item warning">
-                    <span class="alert-icon">⏳</span>
-                    <div><strong>UGEL Huancavelica:</strong> 12 docentes en curso pero 0 culminados. Verificar fechas de culminación (bloques terminan 12/06 - 24/06).</div>
-                </div>
-                <div class="alert-item warning">
-                    <span class="alert-icon">⏳</span>
-                    <div><strong>UGEL Angaraes:</strong> 9 docentes en curso, 0 culminados. Pendiente de certificación.</div>
-                </div>
-                <div class="alert-item critical">
-                    <span class="alert-icon">📋</span>
-                    <div><strong>UGEL Tayacaja:</strong> 16 docentes no inscritos. Recordar: 2 renuncias recientes, 4 plazas vacantes en convocatoria.</div>
-                </div>
-            </div>
+            <h3>🚨 Alertas Críticas <span class="alert-badge" id="alertCount">0</span></h3>
+            <div id="alertsContainer"></div>
         </div>
 
         <!-- TABLE -->
@@ -2715,6 +2717,7 @@ LENGuA DE SEÑAS PERUA...</td>
 
     <script>
 
+        // ===== DATOS =====
         const allDocentes = [{"n": 1, "ugel": "ACOBAMBA", "ie": "CEBE N° 35004", "nombres": "CAMARENA LEÓN ANDRÉS AVELINO", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "Lengua de señas peruana y Evaluación y planificación de los aprendizajes en el CEBE ", "fechas": "6/5/2026 - 17/06/2026", "certificado": "", "estado": "SIN INFORMACIÓN"}, {"n": 2, "ugel": "ACOBAMBA", "ie": "CEBE N° 35004", "nombres": "SORIANO MANSILLA JUDITH GENOVEVA", "condicion": "Nombrado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Detección y atención temprana de necesidades educativas especiales en niños de alto riesgo - grupo 2", "fechas": "6/5/2026 - 12/6/2026", "certificado": "", "estado": "SIN INFORMACIÓN"}, {"n": 3, "ugel": "ACOBAMBA", "ie": "CEBE N° 35004", "nombres": "DE LA CRUZ PAYTAN YESENIA ", "condicion": "Nombrado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Lengua de señas peruanas", "fechas": "30/4/2026 - 24/6/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 4, "ugel": "ACOBAMBA", "ie": "CEBE N° 35004", "nombres": "GOMEZ CCORA LILA", "condicion": "Nombrado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "Estrategias Pedagógicas para la atención educativa a estudiantes con trastorno  de espectro autista", "fechas": "29/04/26-20/05/26", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 5, "ugel": "ACOBAMBA", "ie": "CEBE N° 35004", "nombres": "LACHO GUTIERREZ AURORA", "condicion": "Contratado", "cargo": "Profesional SAANEE", "inscrito": "SI", "curso": "Estrategias Pedagógicas para la Atención Educativa a Estudiantes con trastorno del Espectro Autista(TEA)", "fechas": "29/04/26-20/05/26", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 6, "ugel": "ACOBAMBA", "ie": "CEBE N° 35004", "nombres": "SOCA MARAVI KERLY KATIA", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "SI", "curso": "La integración sensorial, su importancia en los primeros años de vida, grupo 2", "fechas": "30/4/2026 - 3/6/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 7, "ugel": "ACOBAMBA", "ie": "CEBE N° 35004", "nombres": "IZURRAGA VIDAL NATALY SHEYLI", "condicion": "Contratado", "cargo": "Auxiliar", "inscrito": "SI", "curso": "Estrategias Pedagógicas para la atención educativa a estudiantes con trastorno  de espectro autista", "fechas": "29/04/26-20/05/26", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 8, "ugel": "ACOBAMBA", "ie": "CEBE N° 35026", "nombres": "CONDORI QUILCA CYNTHIA", "condicion": "Nombrado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "Lengua de señas peruanas", "fechas": "30/4/2026 - 24/6/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 9, "ugel": "ACOBAMBA", "ie": "CEBE N° 35026", "nombres": "URBINA CASO LIDIA JOVITA", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 10, "ugel": "ACOBAMBA", "ie": "CEBE N° 35026", "nombres": "JURADO CONDORI NANCY", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "Estrategias pedagógicas y evaluacion ", "fechas": "6/5/2026 - 12/6/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 11, "ugel": "ACOBAMBA", "ie": "CEBE N° 35026", "nombres": "GONZALES VARGAS OLGA", "condicion": "Contratado", "cargo": "Profesional SAANEE", "inscrito": "SI", "curso": "Evaluación y Planificación de los aprendizajes en el CEBE.", "fechas": "30/4/2026 - 12/6/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 12, "ugel": "ACOBAMBA", "ie": "CEBE N° 35026", "nombres": "CASTRO GUTIERREZ, JUDITH", "condicion": "Contratado CAS", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Estrategias pedagógicas para la atención de estudiantes con trastornos ", "fechas": "6/5/2026 - 12/6/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 13, "ugel": "ACOBAMBA", "ie": "CEBE N° 35026", "nombres": "GALIDEZ BREÑA CANDY", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "SI", "curso": "Evaluación y planificación de los aprendizajes en el CEBE \nEstrategias pedagógicas para la atención educativa a estudiantes con Trastorno del Espectro Autista", "fechas": "6/5/2026 - 12/6/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 14, "ugel": "ACOBAMBA", "ie": "CEBE N° 35027", "nombres": "PINO CARRERA NOEMI", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "Lengua de Señas Peruana - Nivel básico 1, grupo 2\nDetección y atención temprana de necesidades educativas especiales en niños de alto...\nLa integración sensorial, su importancia en los primeros años de vida, grupo 2", "fechas": "30/4/2026 - 24/6/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 15, "ugel": "ACOBAMBA", "ie": "CEBE N° 35027", "nombres": "HUILLCAS SEGAMA, SUSI", "condicion": "Contratado CAS", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Estrategias pedagógicas para la atención educativa a estudiantes con trastorno del espectro Autista.\nEvaluación y planificación de los aprendizajes en el CEBE ", "fechas": "30/4/2026 - 17/6/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 16, "ugel": "ACOBAMBA", "ie": "CEBE N° 35027", "nombres": "Yasmin Esmeralda Lagos Untiveros ", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "SI", "curso": "Deteccion y atencion temprana de necesidades educativas especiales en niños de alto riesgo\nLa integración sensorial, su importancia en los primeros años de vida, grupo 2\nEstrategias pedagógicas para la atención educativa a estudiantes con Trastorno del Espectro Autista - Grupo 2\nEvaluación y planificación de los aprendizajes en el CEBE - Grupo 2", "fechas": "6/5/2026 - 12/6/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 17, "ugel": "ANGARAES", "ie": "CEBE N° 35005", "nombres": "LUCERO CCENCHO ELY BETTY", "condicion": "Encargado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "Lengua de Señas Peruana Nivel básico\nDetección y atención temprana en niños con NEE en alto riesgo \nLa Integración Sensorial, su importancia en los primeros años de vida", "fechas": "06/05/2026 al 12/06/2026", "certificado": "En curso", "estado": "EN CURSO"}, {"n": 18, "ugel": "ANGARAES", "ie": "CEBE N° 35005", "nombres": "DE LA CRUZ ESCOBAR LUZ GUADALUPE", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Lengua de Señas Peruana Nivel básico\nEvaluación y planificación de los aprendizajes en CEBE.", "fechas": "19/02/2026 al 15/04/2026\n06/05/2026 al 12/06/2026\n  ", "certificado": "En curso", "estado": "EN CURSO"}, {"n": 19, "ugel": "ANGARAES", "ie": "CEBE N° 35005", "nombres": "QUISPE DUEÑAS YADIRA CONSUELO", "condicion": "Nombrado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "Lengua de Señas Peruana Nivel básico", "fechas": "29/04/2026 al 05/06/2026 ", "certificado": "En curso", "estado": "EN CURSO"}, {"n": 20, "ugel": "ANGARAES", "ie": "CEBE N° 35005", "nombres": "HUAMANI TORRES THALIA MELISSA", "condicion": "Nombrado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Estrategias pedagógicas para la atención educativa a estudiantes con Trastorno del espectro autista (TEA)\nEvaluación y planificación de los aprendizajes en CEBE.", "fechas": "06/05/2026 al 12/06/2026", "certificado": "En curso", "estado": "EN CURSO"}, {"n": 21, "ugel": "ANGARAES", "ie": "CEBE N° 35005", "nombres": "TAIPE MENESES RUT", "condicion": "Contratado", "cargo": "Profesional SAANEE", "inscrito": "SI", "curso": "Estrategias pedagógicas para la atención educativa a estudiantes con Trastorno del espectro autista (TEA)\nEvaluación y planificación de los aprendizajes en CEBE.\n", "fechas": "06/05/2026 al 12/06/2026", "certificado": "En curso", "estado": "EN CURSO"}, {"n": 22, "ugel": "ANGARAES", "ie": "CEBE N° 35005", "nombres": "HUAYLLANI MARTINEZ EFRAIN", "condicion": "Contratado", "cargo": "Profesional SAANEE", "inscrito": "SI", "curso": "Evaluación y planificación de los aprendizajes en CEBE.", "fechas": "06/05/2026 al 12/06/2026", "certificado": "En curso", "estado": "EN CURSO"}, {"n": 23, "ugel": "ANGARAES", "ie": "CEBE N° 35005", "nombres": "LAPIERRE CASTILLO JUSELY JULISSA", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 24, "ugel": "ANGARAES", "ie": "CEBE N° 35005", "nombres": "MEZA RAMOS ANA", "condicion": "Contratado", "cargo": "Auxiliar", "inscrito": "SI", "curso": "Evaluación y planificación de los aprendizajes en CEBE.", "fechas": "06/05/2026 al 12/06/2026", "certificado": "En curso", "estado": "EN CURSO"}, {"n": 25, "ugel": "ANGARAES", "ie": "PRITE N° 02", "nombres": "PEREZ TORO MARÍA AMANDA", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "Lengua de Señas Peruana Nivel básico\nDetección y atencion temprana en niños con NEE en alto riesgo \nLa Integración Sensorial, su importancia en los primeros años de vida. ", "fechas": "29/04/2026 al 03/07/2026\n29/04/2026 al 26/06/2026 \n29/04/2026 al 05/06/2026", "certificado": "En curso", "estado": "EN CURSO"}, {"n": 26, "ugel": "ANGARAES", "ie": "PRITE N° 02", "nombres": "MONICA MARIBEL PUMACAHUA HUAMANI", "condicion": "Nombrado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Lengua de Señas Peruana Nivel básico\nDetección y atencion temprana en niños con NEE en alto riesgo \nLa Integración Sensorial, su importancia en los primeros años de vida. ", "fechas": "29/04/2026 al 03/07/2026\n29/04/2026 al 26/06/2026\n29/04/2026 al 05/06/2026                  ", "certificado": "En curso", "estado": "EN CURSO"}, {"n": 27, "ugel": "ANGARAES", "ie": "PRITE N° 02", "nombres": "LOAYZA SUELDO ROCIO TERESA", "condicion": "Nombrado", "cargo": "Auxiliar", "inscrito": "SI", "curso": " La Integración Sensorial, su importancia en los primeros años de vida. ", "fechas": "29/04/2026 al 05/06/2026                       ", "certificado": "En curso", "estado": "EN CURSO"}, {"n": 28, "ugel": "ANGARAES", "ie": "PRITE N° 02", "nombres": "HUAMAN QUIÑONEZ, XIOMARA LOURDES", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "SI", "curso": "Lengua de Señas Peruana Nivel básico\nDetección y atencion temprana en niños con NEE en alto riesgo\nLa Integración Sensorial, su importancia en los primeros años de vida. ", "fechas": "29/04/2026 al 03/07/2026    \n29/04/2026 al 26/06/2026      \n29/04/2026 al 05/06/2026                  ", "certificado": "En curso", "estado": "EN CURSO"}, {"n": 29, "ugel": "CASTROVIRREYNA", "ie": "CEBE N° 35008", "nombres": "LOZA HERRERA JUANA MISS", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "Estrategias Pedagogicas para la Atemcion Educativa a Estudiantes con Transtorno del Espectro Autistas (TEA)", "fechas": "29/04/26 al 20/05/26", "certificado": "", "estado": "SIN INFORMACIÓN"}, {"n": 30, "ugel": "CASTROVIRREYNA", "ie": "CEBE N° 35008", "nombres": "PABLO CURACA MARGARETH LIZVALIZA", "condicion": "Nombrado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "Estrategias Pedagogicas para la Atemcion Educativa a Estudiantes con Transtorno del Espectro Autistas (TEA)", "fechas": "29/04/26 al 20/05/26", "certificado": "En curso", "estado": "EN CURSO"}, {"n": 31, "ugel": "CASTROVIRREYNA", "ie": "CEBE N° 35008", "nombres": "MUÑOZ TAYPE MARIBEL", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Detecion y atencion temprana de necesidades educativas especiales en niños de alto riesgo ", "fechas": "30/04/2026  al  17/06/2026", "certificado": "En curso", "estado": "EN CURSO"}, {"n": 32, "ugel": "CASTROVIRREYNA", "ie": "CEBE N° 35008", "nombres": "MORENO FALVY PAMELA MARIFLOR", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 33, "ugel": "CASTROVIRREYNA", "ie": "CEBE N° 35028 DIVINO SAN ROQUE", "nombres": "CARDENAS ESCOBAR EDITH JULIETA", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 34, "ugel": "CASTROVIRREYNA", "ie": "CEBE N° 35028 DIVINO SAN ROQUE", "nombres": "CHOQUE QUISPE FABIOLA CAROLINA", "condicion": "Contratado CAS", "cargo": "Docente/Tutor de aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 35, "ugel": "CHURCAMPA", "ie": "CEBE N° 35009 LOS ANGELES DE MARIA", "nombres": "PAITAN MORAN LUZMILA ", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno del espectro autista ", "fechas": "06/05/2026 al 12/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 36, "ugel": "CHURCAMPA", "ie": "CEBE N° 35009 LOS ANGELES DE MARIA", "nombres": "CORONADO MEDIAN ZENAIDA ", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Lengua de Señas peruana-nivel básico 1", "fechas": "30/04/2026 al 24/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 37, "ugel": "CHURCAMPA", "ie": "CEBE N° 35009 LOS ANGELES DE MARIA", "nombres": "CCOCHACHI CURO YARITSA", "condicion": "Contratado", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "SI", "curso": "Lengua de Señas peruana-nivel básico 1", "fechas": "30/04/2026 al 24/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 38, "ugel": "CHURCAMPA", "ie": "CEBE N° 35013 LUDWIN VAN BEETHOVEN", "nombres": "CARDENAS VASQUEZ ROSMERI", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno del espectro autista ", "fechas": "06/05/2026 al 12/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 39, "ugel": "CHURCAMPA", "ie": "CEBE N° 35013 LUDWIN VAN BEETHOVEN", "nombres": "ACHA MINAYA LEYDI YESENIA ", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 40, "ugel": "CHURCAMPA", "ie": "CEBE N° 35013 LUDWIN VAN BEETHOVEN", "nombres": "QUISPE MEZA BERTHA ", "condicion": "Contratado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno del espectro autista ", "fechas": "06/05/2026 al 12/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 41, "ugel": "CHURCAMPA", "ie": "CEBE N° 35013 LUDWIN VAN BEETHOVEN", "nombres": "YANCE SEGAMA MARLENI", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "SI", "curso": "Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno del espectro autista ", "fechas": "06/05/2026 al 12/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 42, "ugel": "CHURCAMPA", "ie": "CEBE N° 35014 ANNE SULLIVAN", "nombres": "AYUQUE RAMIREZ MARITZA", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno del espectro autista ", "fechas": "06/05/2026 al 12/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 43, "ugel": "CHURCAMPA", "ie": "CEBE N° 35014 ANNE SULLIVAN", "nombres": "SEGAMA GIRALDEZ PAUL JOSE ", "condicion": "Contratado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno del espectro autista ", "fechas": "06/05/2026 al 12/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 44, "ugel": "CHURCAMPA", "ie": "CEBE N° 35014 ANNE SULLIVAN", "nombres": "SOLANO ILIZARBE JOSE CARLOS ", "condicion": "Contratado CAS", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno del espectro autista ", "fechas": "06/05/2026 al 12/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 45, "ugel": "CHURCAMPA", "ie": "CEBE N° 35014 ANNE SULLIVAN", "nombres": "falta cubrir", "condicion": "Contratado", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 46, "ugel": "CHURCAMPA", "ie": "CEBE N° 35015", "nombres": "YALLI MAMANI YADY", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "LENGUAJE DE SEÑAS NIVEL BASICO", "fechas": "06/05/2026 al 12/06/2026", "certificado": "EN CURSO ", "estado": "EN CURSO"}, {"n": 47, "ugel": "CHURCAMPA", "ie": "CEBE N° 35015", "nombres": "MEDINA CANCHARI ENMA GABRIELA ", "condicion": "Contratado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "Estrategias pedagógicas para la atención educativa a estudiantes con Trastorno del Espectro Autista - Grupo 2                                                                                                                                                        \nLa integración sensorial, su importancia en los primeros años de vida, grupo 2 \nEvaluacion y planificacion de los aprendizajes en el CEBE-grupo 2", "fechas": "06/05/2026 al 12/06/2026 ", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 48, "ugel": "CHURCAMPA", "ie": "CEBE N° 35015", "nombres": "OCHOA  POMAHUACRE NELVA", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Estrategias pedagógicas para la atención educativa a estudiantes con Trastorno del Espectro Autista - Grupo 2                                                                                                                                                        \nLa integración sensorial, su importancia en los primeros años de vida, grupo 2 \nEvaluacion y planificacion de los aprendizajes en el CEBE-grupo 2", "fechas": "06/05/2026 al 12/06/2026 ", "certificado": "EN CURSO ", "estado": "EN CURSO"}, {"n": 49, "ugel": "CHURCAMPA", "ie": "CEBE N° 35015", "nombres": "falta cubrir", "condicion": "Contratado", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 50, "ugel": "CHURCAMPA", "ie": "CEBE N° 35024 FLORIANO ONOFRE GAMBOA", "nombres": "GUTIERREZ POCOMUCHA EDWIN CÉSAR", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 51, "ugel": "CHURCAMPA", "ie": "CEBE N° 35024 FLORIANO ONOFRE GAMBOA", "nombres": "RAMOS HUAMANI DINA ", "condicion": "Nombrado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno del espectro autista ", "fechas": "06/05/2026 al 12/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 52, "ugel": "CHURCAMPA", "ie": "CEBE N° 35024 FLORIANO ONOFRE GAMBOA", "nombres": "GARAVITO AYBAR NORMA SELSA ", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 53, "ugel": "CHURCAMPA", "ie": "CEBE N° 35024 FLORIANO ONOFRE GAMBOA", "nombres": "TAIPE OBREGON ABIMAEL ELIAS ", "condicion": "Contratado CAS", "cargo": "Trabajador Social", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 54, "ugel": "CHURCAMPA", "ie": "CEBE N° 35029 VIRGEN DE COCHARCAS ", "nombres": "MANRIQUE ESPINOZA HAVILA SOLEDAD", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 55, "ugel": "CHURCAMPA", "ie": "CEBE N° 35029 VIRGEN DE COCHARCAS ", "nombres": "TEODOSIO VARGAS SOTACURO", "condicion": "Nombrado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "EVALUACION Y PLANIFICACION DE LOS APRENDIZAJES CEBE", "fechas": "06/05/2026   al 12/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 56, "ugel": "CHURCAMPA", "ie": "CEBE N° 35029 VIRGEN DE COCHARCAS ", "nombres": "ANAYA POMA YOVANA ", "condicion": "Contratado CAS", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "ESTRATEGIAS PEDAGOGICAS PARA LA ATENCION EDUCATIVA A ESTUDIANTES CON TRASNTORNO DEL ESPESCTRO AUTISMO ", "fechas": "13/05/2026 AL 07/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 57, "ugel": "CHURCAMPA", "ie": "CEBE N° 35029 VIRGEN DE COCHARCAS ", "nombres": "NUÑEZ CABEZAS DANIEL CALEB", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 58, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "CASAS PAUCAR ZENAIDA ROCÍO", "condicion": "Encargado", "cargo": "Director(a) sin aula", "inscrito": "SI", "curso": "EVALUACION Y PLANIFICACION DE LOS APRENDIZAJES CEBE \nLENGUA DE SEÑAS PERUANAS Nivel Basico 1", "fechas": "06/03/2026 al 22/04/2026 \n30/04/2026 al 24/06/2026", "certificado": "AUN NO SE EMITE EL CERTIFICADO - EN CURSO", "estado": "EN CURSO"}, {"n": 59, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "ESTEBAN MARTÍNEZ EDY LUZ", "condicion": "Nombrado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "ESTRATEGIAS PEDAGOGICAS PARA LA ATENCIÓN EDUCATIVA A ESTUDIANTES CON TRASTORNO DEL ESPECTRO AUTISMO \nLENGUA DE SEÑAS PERUANAS Nivel Basico 1", "fechas": "10/03/2026 al 19/04/2026 \n30/04/2026 al 24/06/2026", "certificado": "AUN NO SE EMITE EL CERTIFICADO - EN CURSO", "estado": "EN CURSO"}, {"n": 60, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "RAFAEL GARAY NANCY LIDIA", "condicion": "Nombrado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "EVALUACION Y PLANIFICACION DE LOS APRENDIZAJES CEBE\n LENGUA DE SEÑAS PERUANAS Nivel Basico 1", "fechas": "06/03/2026 al 22/04/2026 \n30/04/2026 al 24/06/2026", "certificado": "AUN NO SE EMITE EL CERTIFICADO - EN CURSO", "estado": "EN CURSO"}, {"n": 61, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "CENTENO PEREZ RAQUEL", "condicion": "Nombrado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "LENGUA DE SEÑAS PERUANAS Nivel Basico 1", "fechas": "30/04/2026 al 24/06/2026", "certificado": "EN CURSO", "estado": "EN CURSO"}, {"n": 62, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "CLEMENTE CHAHUAYO YESENIA", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "ESTRATEGIAS PEDAGOGICAS PARA LA ATENCIÓN EDUCATIVA A ESTUDIANTES CON TRASTORNO DEL ESPECTRO AUTISMO \nEVALUACIÓN Y PLANIFICACION DE LOS APRENDIZAJES", "fechas": "10/03/2026 al 19/04/2026 \n06/03/2026 al 22/04/2026", "certificado": "AUN NO SE EMITE EL CERTIFICADO", "estado": "EN CURSO"}, {"n": 63, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "SOTOMAYOR CAYETANO ROSA AURORA", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "EVALUACION Y PLANIFICACION DE LOS APRENDIZAJES CEBE", "fechas": "06/03/2026 al 22/04/2026", "certificado": "AUN NO SE EMITE EL CERTIFICADO", "estado": "EN CURSO"}, {"n": 64, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "CEPIDA PORRAS RUTH", "condicion": "Nombrado", "cargo": "Profesional SAANEE", "inscrito": "SI", "curso": "ESTRATEGIAS PEDAGOGICAS PARA LA ATENCIÓN EDUCATIVA A ESTUDIANTES CON TRASTORNO DEL ESPECTRO AUTISMO \n LENGUA DE SEÑAS PERUANAS Nivel Basico 1", "fechas": "10/03/2026 al 19/04/2026 \n30/04/2026 al 24/06/2026", "certificado": "AUN NO SE EMITE EL CERTIFICADO - EN CURSO", "estado": "EN CURSO"}, {"n": 65, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "SAEZ HUAMAN JESUSA", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "ESTRATEGIAS PEDAGOGICAS PARA LA ATENCIÓN EDUCATIVA A ESTUDIANTES CON TRASTORNO DEL ESPECTRO AUTISMO \nEVALUACION Y PLANIFICACION DE LOS APRENDIZAJES EN CEBE \nLENGUA DE SEÑAS PERUANAS Nivel Basico 1", "fechas": "10/03/2026 al 19/04/2026 \n06/03/2026 al 22/04/2026 \n30/04/2026 al 24/06/2026", "certificado": "AUN NO SE EMITE EL CERTIFICADO - EN CURSO", "estado": "EN CURSO"}, {"n": 66, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "CUELLAR ARONI ENA LAURA", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "LENGUA DE SEÑAS PERUANAS Nivel Basico 1", "fechas": "30/04/2026 al 24/06/2026", "certificado": "EN CURSO", "estado": "EN CURSO"}, {"n": 67, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "CENTENO HUAMANI LIZBETH", "condicion": "Nombrado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "ESTRATEGIAS PEDAGOGICAS PARA LA ATENCIÓN EDUCATIVA A ESTUDIANTES CON TRASTORNO DEL ESPECTRO AUTISMO \nLENGUA DE SEÑAS PERUANAS Nivel Basico 1", "fechas": "10/03/2026 al 19/04/2026 \n30/04/2026 al 24/06/2026", "certificado": "AUN NO SE EMITE EL CERTIFICADO - EN CURSO", "estado": "EN CURSO"}, {"n": 68, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "PACCORI CHANCA YAKE", "condicion": "Contratado", "cargo": "Trabajador Social", "inscrito": "SI", "curso": "LENGUA DE SEÑAS PERUANAS Nivel Basico 1", "fechas": "30/04/2026 al 24/06/2026", "certificado": "EN CURSO", "estado": "EN CURSO"}, {"n": 69, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "BENAVENTE ARAMBURU ISABEL CARLA", "condicion": "Contratado", "cargo": "Auxiliar", "inscrito": "SI", "curso": "EVALUACION Y PLANIFICACION DE LOS APRENDIZAJES CEBE", "fechas": "06/05/2026 al 12/06/2026", "certificado": "EN CURSO", "estado": "EN CURSO"}, {"n": 70, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "HUIZA MATAMOROS DELIA", "condicion": "Contratado", "cargo": "Auxiliar", "inscrito": "SI", "curso": "EVALUACION Y PLANIFICACION DE LOS APRENDIZAJES CEBE", "fechas": "06/03/2026 al 22/04/2026", "certificado": "AUN NO SE EMITE EL CERTIFICADO", "estado": "EN CURSO"}, {"n": 71, "ugel": "HUANCAVELICA", "ie": "CEBE N° 35001", "nombres": "BASTO REYES CINTHIA CRISTINA", "condicion": "Contratado", "cargo": "Tecnólogo Médico", "inscrito": "SI", "curso": "LENGUA DE SEÑAS PERUANAS Nivel Basico 1", "fechas": "30/04/2026 al 24/06/2026", "certificado": "EN CURSO", "estado": "EN CURSO"}, {"n": 72, "ugel": "HUANCAVELICA", "ie": "PRITE N° 01", "nombres": "MATAMOROS LEÓN LILA KARIN", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "DETECCION Y ATENCIÓN TEMPRANA DE NECESIDADES EDUCATIVAS ESPECIALES EN NIÑOS DE ALTO RIESGO\nLENGUA DE SEÑAS PERUANA - NIVEL BÁSICO.", "fechas": "30/04/2026 al 17/06/2026 \n30/04/2026 al 24/06/2026", "certificado": "", "estado": "SIN INFORMACIÓN"}, {"n": 73, "ugel": "HUANCAVELICA", "ie": "PRITE N° 01", "nombres": "SOLANO RAMOS, GABRIELA SALLY", "condicion": "Contratado CAS", "cargo": "PSICÓLOGA", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 74, "ugel": "HUANCAVELICA", "ie": "PRITE N° 01", "nombres": "MUÑOZ TAIPE ESTHER YOVANA", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "DETECCION Y ATENCIÓN TEMPRANA DE NECESIDADES EDUCATIVAS ESPECIALES EN NIÑOS DE ALTO RIESGO", "fechas": "30/04/2026 al 17/06/2026 ", "certificado": "", "estado": "SIN INFORMACIÓN"}, {"n": 75, "ugel": "HUANCAVELICA", "ie": "PRITE N° 01", "nombres": "QUINTO MALLQUI, FANNY LISBETH", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "DETECCION Y ATENCIÓN TEMPRANA DE NECESIDADES EDUCATIVAS ESPECIALES EN NIÑOS DE ALTO RIESGO", "fechas": "30/04/2026 al 17/06/2026 ", "certificado": "", "estado": "SIN INFORMACIÓN"}, {"n": 76, "ugel": "HUANCAVELICA", "ie": "CREBE RH", "nombres": "ESPINOZA CAPCHA ANGÉLICA", "condicion": "Nombrado", "cargo": "Director(a) sin aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 77, "ugel": "HUANCAVELICA", "ie": "CREBE RH", "nombres": "MIGUEL BENDEZÚ KELY KEIMENA", "condicion": "Contratado CAS", "cargo": "Docente/Tutor de aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 78, "ugel": "HUAYTARA", "ie": "CEBE N° 35007", "nombres": "ESPINOZA OCHANTE ROSA CLEMENTINA", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "DETECCION Y ATENCION TEMPRANA DE NECESIDADES EDUCATIVAS", "fechas": "10 de abril 2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 79, "ugel": "HUAYTARA", "ie": "CEBE N° 35007", "nombres": "NOHEMI ROXANA QUISPE QUINCHO", "condicion": "Nombrado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "DETECCION Y ATENCION TEMPRANA DE NECESIDADES EDUCATIVAS", "fechas": "10 de abril 2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 80, "ugel": "HUAYTARA", "ie": "CEBE N° 35007", "nombres": "REYES PARIAS,JUSTA DILCIA", "condicion": "Contratado", "cargo": "Profesional SAANEE", "inscrito": "NO", "curso": "NINGUNO", "fechas": "NO", "certificado": "NO", "estado": "NO INSCRITO"}, {"n": 81, "ugel": "HUAYTARA", "ie": "CEBE N° 35007", "nombres": "FLOR ADELITA GONZALES REYES", "condicion": "Contratado CAS", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "ESTRATEGIAS PEDAGOGICAS PARA LA ATENCION EDUCATIVA A ESTUDIANTES CON TRNSTORNO DEL ESPECTRO AUTISTA -GRUPO 2", "fechas": "06/05/2026 -12/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 82, "ugel": "HUAYTARA", "ie": "CEBE N° 35010", "nombres": "CENTENO CCANTO ANA", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "DETECCION Y ATENCION TEMPRANA DE NECESIDADES", "fechas": "20/04/2026 - 22/05/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 83, "ugel": "HUAYTARA", "ie": "CEBE N° 35010", "nombres": "CARHUAPOMA CANALES MARLENY", "condicion": "Nombrado", "cargo": "Profesional SAANEE", "inscrito": "SI", "curso": "ESTRATEGIAS PEDAGOGICAS PARA LA ATENCION EDUCATIVA A ESTUDIANTES CON TRNSTORNO DEL ESPECTRO AUTISTA -GRUPO 2", "fechas": "06/05/2026 - 24/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 84, "ugel": "HUAYTARA", "ie": "CEBE N° 35011", "nombres": "DURAND FLORES VIOLETA", "condicion": "Contratado", "cargo": "Profesional SAANEE", "inscrito": "SI", "curso": "ESTRATEGIAS PEDAGOGICAS PARA LA ATENCION EDUCATIVA A ESTUDIANTES CON TRNSTORNO DEL ESPECTRO AUTISTA -GRUPO 3", "fechas": "06/05/2026 - 24/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 85, "ugel": "HUAYTARA", "ie": "CEBE N° 35010", "nombres": "DE LA CRUZ RIVEROS EDWIN", "condicion": "Contratado", "cargo": "Profesional SAANEE", "inscrito": "SI", "curso": "ESTRATEGIAS PEDAGOGICAS PARA LA ATENCION EDUCATIVA A ESTUDIANTES CON TRNSTORNO DEL ESPECTRO AUTISTA -GRUPO 4", "fechas": "06/05/2026 - 24/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 86, "ugel": "HUAYTARA", "ie": "CEBE N° 35011", "nombres": "BENITO ZUASNABAR YENNY", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "LENGUA DE SEÑAS PERUAN. NIVEL BASICO 1\nDETECCION Y ATENCION TEMPRANA DE NEE EN NIÑOS DE ALTO RIESGO.", "fechas": "30/04/2026-24/06/2026 \n30/04/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 87, "ugel": "HUAYTARA", "ie": "CEBE N° 35011", "nombres": "FLORES MORALES ARSENIA ELIZABETH", "condicion": "Contratado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "LENGUA DE SEÑAS PERUAN. NIVEL BASICO 1\nDETECCION Y ATENCION TEMPRANA DE NEE EN NIÑOS DE ALTO RIESGO.", "fechas": "30/04/2026-24/06/2026\n30/04/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 88, "ugel": "HUAYTARA", "ie": "CEBE N° 35011", "nombres": "SANTIAGO PALOMINO YOLANDA ISABEL", "condicion": "Contratado", "cargo": "Profesional SAANEE", "inscrito": "NO", "curso": "NINGUNO", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 89, "ugel": "HUAYTARA", "ie": "CEBE N° 35011", "nombres": "EPIFANIA OLGA PARVINA PALACIOS", "condicion": "Contratado", "cargo": "Profesional SAANEE", "inscrito": "NO", "curso": "NINGUNO", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 90, "ugel": "HUAYTARA", "ie": "CEBE N° 35011", "nombres": "HUAMANI LLOCLLA,DEYSI YOANA", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "NO", "curso": "NINGUNO", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 91, "ugel": "TAYACAJA", "ie": "CEBE N° 35002", "nombres": "PORTA GAVILAN MIRIAM", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "DETECCION Y ATENCION TEMPRANA DE NECESIDADES", "fechas": "30/04/2026 - 04/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 92, "ugel": "TAYACAJA", "ie": "CEBE N° 35002", "nombres": "FLORES ZUASNABAR WILMER MARIO", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "NO", "curso": "NINGUNO ", "fechas": "NINGUNO", "certificado": "", "estado": "NO INSCRITO"}, {"n": 93, "ugel": "TAYACAJA", "ie": "CEBE N° 35002", "nombres": "POMAHUALI PIÑAS ADA GABRIELA", "condicion": "Nombrado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "LA INTEGRACIÓN SENSORIAL, SU IMPORTANCIA EN LOS PRIMEROS AÑOS DE VIDA\nLENGUA DE SEÑAS PERUANAS NIVEL BASICO 1\nDETECCIÓN Y ATENCIÓN TEMPRANA DE NECESIDADES EDUCATIVAS ESPECIALES EN NIÑOS DE ALTO RIESGO\nCIUDADANÍA DIGITAL\nBIENESTAR DIGITAL", "fechas": "INICIO 19/02/2026 /FIN 15/04/2026\nInicio: 24/02/2026/Fin: 13/04/2026 \nInicio: 20/01/2026/Fin: 17/03/2026 \nInicio: 16/01/2026/Fin: 26/02/2026\n", "certificado": "3 SI/ 2 EN ESPERA", "estado": "EN CURSO"}, {"n": 94, "ugel": "TAYACAJA", "ie": "CEBE N° 35002", "nombres": "ACUÑA CAMARGO VERONICA ", "condicion": "Nombrado", "cargo": "Profesional SAANEE", "inscrito": "SI", "curso": "Detección y atención temprDetección y atención temprana de necesidades educativas especiales en niños de alto riesgo\nNecesidades educativas especiales en niños de alto riesgo .", "fechas": "24/02/26   al  13/04/26 \n24/02/26  al   13/04/26", "certificado": "SI", "estado": "CERTIFICADO"}, {"n": 95, "ugel": "TAYACAJA", "ie": "CEBE N° 35002", "nombres": "CASTRO OLARTE FANNY YUDITH", "condicion": "Nombrado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "LA INTEGRACIÓN SENSORIAL, SU IMPORTANCIA EN LOS PRIMEROS AÑOS DE VIDA", "fechas": "30/04/2026 - 03/06/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 96, "ugel": "TAYACAJA", "ie": "CEBE N° 35002", "nombres": "ROQUE JIMENEZ ERIKA", "condicion": "Nombrado", "cargo": "Profesional SAANEE", "inscrito": "SI", "curso": "LENGUA DE SEÑAS PERUANAS. NIVEL BASICO 1\nESTRATEGIAS PEDAGOGICAS PARA LA ATENCION EDUCATIVA A ESTUDIANTES CON TRASTORNODEL ESPECTRO AUTISTA ", "fechas": "30 DE ABRIL AL 24 DE JUNIO \n06 DE MAYO AL 12 DE JUNIO", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 97, "ugel": "TAYACAJA", "ie": "CEBE N° 35002", "nombres": "En convocatoria ", "condicion": "Contratado CAS", "cargo": "Docente/Tutor de aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "NO", "estado": "NO INSCRITO"}, {"n": 98, "ugel": "TAYACAJA", "ie": "CEBE N° 35002", "nombres": "SOLANO IRAZABAL, SHELENI", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "NO", "curso": "NINGUNO", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 99, "ugel": "TAYACAJA", "ie": "CEBE N° 35002", "nombres": "ESPINOZA MERCADO SONIA MONICA", "condicion": "Nombrado", "cargo": "Auxiliar", "inscrito": "NO", "curso": "NINGUNO", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 100, "ugel": "TAYACAJA", "ie": "CEBE N° 35002", "nombres": "GOZAR LANDA LILIANA KATTY", "condicion": "Nombrado", "cargo": "Auxiliar", "inscrito": "SI", "curso": "BASICO FORMATIVO DE SEGURIDAD EN EL TRABAJO", "fechas": "18 DE MAYO HASTA 8 DE JUNIO 2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 101, "ugel": "TAYACAJA", "ie": "CEBE N° 35016", "nombres": "GUZMÁN DELGADO JHULISSA", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 102, "ugel": "TAYACAJA", "ie": "CEBE N° 35016", "nombres": "VILA ROMANI SEUMARA ANDREA", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 103, "ugel": "TAYACAJA", "ie": "CEBE N° 35017", "nombres": "CASAS DE LA CRUZ JUDITH", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "LENGUAJE DE SEÑAS PERUANAS NIVEL BASICO", "fechas": "06 DE MAYO AL 12 DE JUNIO", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 104, "ugel": "TAYACAJA", "ie": "CEBE N° 35017", "nombres": "IZARRA LIZARRAGA MARIA ISABEL", "condicion": "Nombrado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "LENGUA DE SEÑAS PERUANAS. NIVEL BASICO 1\nESTRATEGIAS PARA LA ATENCION A ESTUDIANTES CON TRASTORNO DEL ESPECTRO AUTISTA", "fechas": "30 DE ABRIL AL 24 DE JUNIO \n06 DE MAYO AL 12 DE JUNIO", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 105, "ugel": "TAYACAJA", "ie": "CEBE N° 35017", "nombres": "PEÑA SILVERA DANITZA NAYELY", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "SI", "curso": "LENGUA DE SEÑAS PERUANAS. NIVEL BASICO 1/ ESTRATEGIAS PARA LA ATENCION A ESTUDIANTES CON TRASTORNO DEL ESPECTRO AUTISTA", "fechas": "30 DE ABRIL AL 24 DE JUNIO \n06 DE MAYO AL 12 DE JUNIO", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 106, "ugel": "TAYACAJA", "ie": "CEBE N° 35017", "nombres": "RODRIGUEZ GUTARRA HENNIFER FABIOLA", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "LENGUA DE SEÑAS PERUANAS. NIVEL BASICO 1\nEVALUACION Y PLANIFICACION DE LOS APRENDIZAJES CEBE", "fechas": "30 DE ABRIL AL 24 DE JUNIO", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 107, "ugel": "TAYACAJA", "ie": "CEBE N° 35018", "nombres": "MANCHA CHAHUAYO ALICIA", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 108, "ugel": "TAYACAJA", "ie": "CEBE N° 35018", "nombres": "SOTACURO SALVATIERRA NANCY VIOLETA", "condicion": "Nombrado", "cargo": "Coordinador(a) SAANEE", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 109, "ugel": "TAYACAJA", "ie": "CEBE N° 35018", "nombres": "RUTTI CASTILLON AYDEE", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 110, "ugel": "TAYACAJA", "ie": "CEBE N° 35019", "nombres": "HUAROC ARROYO RUTH TORIBIA", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "Evaluación y planificación de los aprendizajes en el cebe  ", "fechas": "12 -05-2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 111, "ugel": "TAYACAJA", "ie": "CEBE N° 35019", "nombres": "ORELLANA HUAMAN JUANA IRIS", "condicion": "Nombrado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Evaluación y planificación de los aprendizajes en el cebe ", "fechas": "2026-05-12 00:00:00", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 112, "ugel": "TAYACAJA", "ie": "CEBE N° 35019", "nombres": "YALLICO OLIVAR ELIZABETH YOBANA", "condicion": "Nombrado", "cargo": "Docente/Tutor de aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "NO", "estado": "NO INSCRITO"}, {"n": 113, "ugel": "TAYACAJA", "ie": "CEBE N° 35019", "nombres": "HUALLPA JURADO HOOVER RIDER", "condicion": "Contratado", "cargo": "Coordinador(a) SAANEE", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "NO", "estado": "NO INSCRITO"}, {"n": 114, "ugel": "TAYACAJA", "ie": "CEBE N° 35019", "nombres": "JOANY CUCHITA JIMENEZ AGUAYO", "condicion": "Contratado", "cargo": "Profesional SAANEE", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "NO", "estado": "NO INSCRITO"}, {"n": 115, "ugel": "TAYACAJA", "ie": "CEBE N° 35019", "nombres": "CLEMENTE SANCHEZ LEIDY MIRELLA", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Detección y atención temprana de necesidades educativas especiales en niños de alto riesgo Y Evaluación y planificación de los aprendizajes en el cebe grupo ", "fechas": "2026-05-12 00:00:00", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 116, "ugel": "TAYACAJA", "ie": "CEBE N° 35019", "nombres": "INFANZON MEDFINA RUTH KAREN", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "NO", "estado": "NO INSCRITO"}, {"n": 117, "ugel": "TAYACAJA", "ie": "CEBE N° 35019", "nombres": "MEZA BONILLA ESTHER", "condicion": "Nombrado", "cargo": "Auxiliar", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "NO", "estado": "NO INSCRITO"}, {"n": 118, "ugel": "TAYACAJA", "ie": "CEBE N° 35020", "nombres": "GARCÍA QUISPE VALERI", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "la integracion sensorial su importancia en los primeros años de vida (grupo 2)", "fechas": "14/04/2026 - 12/05/2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 119, "ugel": "TAYACAJA", "ie": "CEBE N° 35020", "nombres": "CONDORI CCANTO EDGAR", "condicion": "Nombrado", "cargo": "Profesional SAANEE", "inscrito": "SI", "curso": "Lengua de señas peruana, nivel basico, ", "fechas": "2026-04-14 00:00:00", "certificado": "", "estado": "SIN INFORMACIÓN"}, {"n": 120, "ugel": "TAYACAJA", "ie": "CEBE N° 35020", "nombres": "PARIONA AVILA, ANEL", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 121, "ugel": "TAYACAJA", "ie": "CEBE N° 35021", "nombres": "JUÑO CLAROS CINTYA ARACELLY", "condicion": "Nombrado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "EVALUACION Y PLANIFICACION DELO APRENDIZAJES EN EL CEBE\nLENGuA DE SEÑA PERUANA NIVEL BASICO", "fechas": "30 ABRIL DEL 2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 122, "ugel": "TAYACAJA", "ie": "CEBE N° 35021", "nombres": "FLORES GALINDO JESENIA", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "EVALUACION Y PLANIFICACION DELO APRENDIZAJES EN EL CEBE\nLENGuA DE SEÑA PERUANA NIVEL BASICO", "fechas": "30 DE ABRIL DEL 2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 123, "ugel": "TAYACAJA", "ie": "CEBE N° 35021", "nombres": "BALVIN VILLANUEVA, JHOLBEIN JHOSLY", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "SI", "curso": "EVALUACION Y PLANIFICACION DELO APRENDIZAJES EN EL CEBE\nLENGuA DE SEÑA PERUANA NIVEL BASICO", "fechas": "30DE ABRIL DEL 2026", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 124, "ugel": "TAYACAJA", "ie": "CEBE N° 35022", "nombres": "GAMBOA LLANTOY YENY", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "ESTRATEGIA PEDAGOGICA PARA ATENCION EDUCATIVA A ESTUDIANTES CON TRASTORNO ESPECTRO AUTISTA. DETECCION Y ATENCION TEMPRANA DE NECESIDADES EDUCATIVAS ESPECIALES EN NIÑOS DE ALTO RIESGO", "fechas": "6 Mayo / 12 Junio    \n30 de abril al 17 junio", "certificado": "En proceso de studio ", "estado": "EN CURSO"}, {"n": 125, "ugel": "TAYACAJA", "ie": "CEBE N° 35022", "nombres": "POMA HUAROC NORA LINA", "condicion": "Nombrado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "ESTRATEGIA PEDAGOGICA PARA ATENCION EDUCATIVA A ESTUDIANTES CON TRASTORNO ESPECTRO AUTISTA. ", "fechas": "6 de Mayo / 12 junio", "certificado": "En proceso de studio ", "estado": "EN CURSO"}, {"n": 126, "ugel": "TAYACAJA", "ie": "CEBE N° 35022", "nombres": "LOPEZ LOPEZ, JUAN GABRIEL ", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "SI", "curso": "EVALUACION Y PLANIFICACION DELO APRENDIZAJES EN EL CEBE,  \nLENGuA DE SEÑAS PERUANA NIVEL BASICO", "fechas": "30 Abril /24 de Junio", "certificado": "En proceso de studio ", "estado": "EN CURSO"}, {"n": 127, "ugel": "TAYACAJA", "ie": "CEBE N° 35022", "nombres": "CABEZAS SEDANO ROBERTO", "condicion": "Contratado", "cargo": "Profesional SAANEE", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 128, "ugel": "TAYACAJA", "ie": "CEBE N° 35023", "nombres": "CCANTO CONDORI ELIZABETH PAULA", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "Planificación curricular en Basica Especial", "fechas": "Del 06 de mayo al 17 de junio", "certificado": "En proceso de estudio", "estado": "EN CURSO"}, {"n": 129, "ugel": "TAYACAJA", "ie": "CEBE N° 35023", "nombres": "ESPINOZA TAIPE MARTHA", "condicion": "Nombrado", "cargo": "Coordinador(a) SAANEE", "inscrito": "SI", "curso": "Estrategias pedagogicas para la atención educativa a estudiantes con Trastorno del Espectro Autista  y lenguas de señas peruanas ", "fechas": "06 de mayo al 12 de junio --30 de abril al 24 de junio", "certificado": "En proceso de estudio", "estado": "EN CURSO"}, {"n": 130, "ugel": "TAYACAJA", "ie": "CEBE N° 35023", "nombres": "LONDOÑE HERRERA MARUJA", "condicion": "Contratado", "cargo": "Profesional SAANEE", "inscrito": "SI", "curso": "Planificación curricular en Basica Especial", "fechas": "Del 06 de mayo al 17 de junio", "certificado": "En proceso de estudio", "estado": "EN CURSO"}, {"n": 131, "ugel": "TAYACAJA", "ie": "CEBE N° 35023", "nombres": "En convocatoria ", "condicion": "Contratado CAS", "cargo": "Docente/Tutor de aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 132, "ugel": "TAYACAJA", "ie": "CEBE N° 35023", "nombres": "ELESCANO GUERREROS LUIS ALBERTO", "condicion": "Contratado CAS", "cargo": "TECNÓLOGO MÉDICO", "inscrito": "SI", "curso": "Estrategias pedagogicas para la atencion educativa a estudiantes con Transtorno del Aspectro Autista- grupo 1", "fechas": "6 de mayo al 07 de junio", "certificado": "En proceso de estudio", "estado": "EN CURSO"}, {"n": 133, "ugel": "TAYACAJA", "ie": "PRITE N°03", "nombres": "MORALES VALENCIA ALIDA MILAGROS", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "SI", "curso": "Detección y atención temprana de necesidades educativas especiales en niños de alto riesgo - Grupo 2", "fechas": "30 de abril al 6 de junio", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 134, "ugel": "TAYACAJA", "ie": "PRITE N°03", "nombres": "NIVARDA VILLEGAS MENDOZA", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Estrategias pedagogicas para la atencion educativa a estudiantes con Transtorno del Aspectro Autista- grupo 1", "fechas": "14 de abril al 11 de junio", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 135, "ugel": "TAYACAJA", "ie": "PRITE N°03", "nombres": "SYNTHIA ECHAVIGURIN GALA ", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "Detección y atención temprana de necesidades educativas especiales en niños de alto riesgo - Grupo 2", "fechas": "30 de abril al 6 de junio", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 136, "ugel": "TAYACAJA", "ie": "PRITE N°03", "nombres": "FLOR YOVANNA QUISPE CHAHUAYO", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 137, "ugel": "TAYACAJA", "ie": "PRITE N°03", "nombres": "MARYMAR ELBA GIRON CLEMENTE", "condicion": "Contratado CAS", "cargo": "Docente/Tutor de aula", "inscrito": "SI", "curso": "La integracion sensorial: su importancia en los primeros años de vida, grupo 2", "fechas": "30 de abril al 3 de junio", "certificado": "NO", "estado": "CULMINADO SIN CERT"}, {"n": 138, "ugel": "SURCUBAMABA", "ie": "CEBE N° 35025", "nombres": "HUAMANI NOLASCO MARIELA", "condicion": "Nombrado", "cargo": "Director(a) con aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 139, "ugel": "SURCUBAMABA", "ie": "CEBE N° 35025", "nombres": "CAMACLLANQUI VILLAMANRIQUE NOEMI ANGELA ", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 140, "ugel": "SURCUBAMABA", "ie": "CEBE N° 35025", "nombres": "CORDOVA RIVEROS ANDERSON FÉLIX ", "condicion": "Contratado", "cargo": "Docente/Tutor de aula", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}, {"n": 141, "ugel": "SURCUBAMABA", "ie": "CEBE N° 35025", "nombres": "HUANCAUQUI ZUÑIGA  GIANINA PAOLA", "condicion": "Contratado CAS", "cargo": "Psicólogo(a)", "inscrito": "NO", "curso": "", "fechas": "", "certificado": "", "estado": "NO INSCRITO"}];
         const allCargos = ["Auxiliar", "Coordinador(a) SAANEE", "Director(a) con aula", "Director(a) sin aula", "Docente/Tutor de aula", "PSICÓLOGA", "Profesional SAANEE", "Psicólogo(a)", "TECNÓLOGO MÉDICO", "Tecnólogo Médico", "Trabajador Social"];
         const cargoStats = {"Auxiliar": {"total": 8, "inscritos": 6, "culminados": 2, "en_curso": 4, "no_inscritos": 2, "certificado": 0}, "Coordinador(a) SAANEE": {"total": 17, "inscritos": 15, "culminados": 10, "en_curso": 5, "no_inscritos": 2, "certificado": 0}, "Director(a) con aula": {"total": 28, "inscritos": 22, "culminados": 14, "en_curso": 5, "no_inscritos": 6, "certificado": 0}, "Director(a) sin aula": {"total": 2, "inscritos": 1, "culminados": 0, "en_curso": 1, "no_inscritos": 1, "certificado": 0}, "Docente/Tutor de aula": {"total": 43, "inscritos": 31, "culminados": 15, "en_curso": 13, "no_inscritos": 12, "certificado": 0}, "PSICÓLOGA": {"total": 1, "inscritos": 0, "culminados": 0, "en_curso": 0, "no_inscritos": 1, "certificado": 0}, "Profesional SAANEE": {"total": 17, "inscritos": 12, "culminados": 7, "en_curso": 4, "no_inscritos": 5, "certificado": 1}, "Psicólogo(a)": {"total": 1, "inscritos": 0, "culminados": 0, "en_curso": 0, "no_inscritos": 1, "certificado": 0}, "TECNÓLOGO MÉDICO": {"total": 21, "inscritos": 10, "culminados": 7, "en_curso": 3, "no_inscritos": 11, "certificado": 0}, "Tecnólogo Médico": {"total": 1, "inscritos": 1, "culminados": 0, "en_curso": 1, "no_inscritos": 0, "certificado": 0}, "Trabajador Social": {"total": 2, "inscritos": 1, "culminados": 0, "en_curso": 1, "no_inscritos": 1, "certificado": 0}};
@@ -2722,50 +2725,281 @@ LENGuA DE SEÑAS PERUA...</td>
         let selectedCargos = [...allCargos];
         let filteredDocentes = [...allDocentes];
 
-        let chartUgel, chartEstado, chartInscritos, chartCondicion;
+        let chartUgel = null, chartEstado = null, chartInscritos = null, chartCondicion = null;
+        let isDropdownOpen = false;
 
-        function initCharts() {
-            chartUgel = new Chart(document.getElementById('ugelChart'), {
-                type: 'bar',
-                data: { labels: [], datasets: [{ label: '% Culminados', data: [], backgroundColor: '#2d8a4e', borderRadius: 6 }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } }
+        // ===== INICIALIZAR =====
+        document.addEventListener('DOMContentLoaded', function() {
+            initEventListeners();
+            initCharts();
+            updateTags();
+            updateDashboard();
+        });
+
+        // ===== EVENT LISTENERS =====
+        function initEventListeners() {
+            // Dropdown trigger
+            document.getElementById('cargoTrigger').addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleDropdown();
+            });
+
+            // Checkbox "Seleccionar todos"
+            document.getElementById('checkAll').addEventListener('change', function(e) {
+                e.stopPropagation();
+                const checked = this.checked;
+                document.querySelectorAll('.multiselect-option[data-cargo] input[type="checkbox"]').forEach(cb => {
+                    cb.checked = checked;
+                });
+                if (checked) {
+                    selectedCargos = [...allCargos];
+                } else {
+                    selectedCargos = [];
+                }
+                updateTags();
+            });
+
+            // Checkboxes individuales
+            document.querySelectorAll('.multiselect-option[data-cargo] input[type="checkbox"]').forEach(cb => {
+                cb.addEventListener('change', function(e) {
+                    e.stopPropagation();
+                    const cargo = this.value;
+                    if (this.checked) {
+                        if (!selectedCargos.includes(cargo)) selectedCargos.push(cargo);
+                    } else {
+                        const idx = selectedCargos.indexOf(cargo);
+                        if (idx > -1) selectedCargos.splice(idx, 1);
+                    }
+                    document.getElementById('checkAll').checked = selectedCargos.length === allCargos.length;
+                    updateTags();
+                });
+            });
+
+            // Botón Aplicar
+            document.getElementById('btnApply').addEventListener('click', function(e) {
+                e.stopPropagation();
+                closeDropdown();
+                updateDashboard();
+            });
+
+            // Botón Limpiar
+            document.getElementById('btnClear').addEventListener('click', function(e) {
+                e.stopPropagation();
+                selectedCargos = [];
+                document.getElementById('checkAll').checked = false;
+                document.querySelectorAll('.multiselect-option[data-cargo] input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                });
+                updateTags();
+                closeDropdown();
+                updateDashboard();
+            });
+
+            // Cerrar dropdown al click fuera
+            document.addEventListener('click', function(e) {
+                const container = document.querySelector('.multiselect-container');
+                if (container && !container.contains(e.target)) {
+                    closeDropdown();
                 }
             });
 
-            chartEstado = new Chart(document.getElementById('estadoChart'), {
+            // Prevenir que el dropdown se cierre al hacer click dentro
+            document.getElementById('cargoDropdown').addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        // ===== DROPDOWN =====
+        function toggleDropdown() {
+            const trigger = document.getElementById('cargoTrigger');
+            const dropdown = document.getElementById('cargoDropdown');
+
+            if (isDropdownOpen) {
+                closeDropdown();
+            } else {
+                openDropdown();
+            }
+        }
+
+        function openDropdown() {
+            const trigger = document.getElementById('cargoTrigger');
+            const dropdown = document.getElementById('cargoDropdown');
+            trigger.classList.add('active');
+            dropdown.classList.add('active');
+            isDropdownOpen = true;
+        }
+
+        function closeDropdown() {
+            const trigger = document.getElementById('cargoTrigger');
+            const dropdown = document.getElementById('cargoDropdown');
+            trigger.classList.remove('active');
+            dropdown.classList.remove('active');
+            isDropdownOpen = false;
+        }
+
+        // ===== TAGS =====
+        function updateTags() {
+            const container = document.getElementById('selectedTags');
+            const triggerText = document.getElementById('cargoTriggerText');
+
+            if (selectedCargos.length === 0) {
+                triggerText.textContent = 'Ningún cargo seleccionado';
+                container.innerHTML = '<span style="color:#999; font-size:0.85rem;">Selecciona al menos un cargo</span>';
+                return;
+            }
+
+            if (selectedCargos.length === allCargos.length) {
+                triggerText.textContent = 'Todos los cargos (' + allCargos.length + ')';
+            } else {
+                triggerText.textContent = selectedCargos.length + ' de ' + allCargos.length + ' cargos';
+            }
+
+            let html = '';
+            selectedCargos.forEach(c => {
+                html += '<div class="selected-tag">' + escapeHtml(c) + '<span class="remove" data-cargo="' + escapeHtml(c) + '">×</span></div>';
+            });
+            container.innerHTML = html;
+
+            // Agregar event listeners a los botones de remover
+            container.querySelectorAll('.remove').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const cargo = this.getAttribute('data-cargo');
+                    removeCargo(cargo);
+                });
+            });
+        }
+
+        function removeCargo(cargo) {
+            const idx = selectedCargos.indexOf(cargo);
+            if (idx > -1) {
+                selectedCargos.splice(idx, 1);
+            }
+
+            // Actualizar checkbox correspondiente
+            const checkbox = document.querySelector('.multiselect-option[data-cargo="' + cargo + '"] input[type="checkbox"]');
+            if (checkbox) checkbox.checked = false;
+
+            document.getElementById('checkAll').checked = selectedCargos.length === allCargos.length;
+            updateTags();
+            updateDashboard();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ===== CHARTS =====
+        function initCharts() {
+            // Gráfico 1: Avance por UGEL
+            const ctx1 = document.getElementById('ugelChart').getContext('2d');
+            chartUgel = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '% Culminados',
+                        data: [],
+                        backgroundColor: '#2d8a4e',
+                        borderRadius: 6,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: function(value) { return value + '%'; } }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico 2: Estados
+            const ctx2 = document.getElementById('estadoChart').getContext('2d');
+            chartEstado = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
                     labels: ['Culminado sin Cert', 'En Curso', 'No Inscrito', 'Certificado', 'Sin Info'],
-                    datasets: [{ data: [], backgroundColor: ['#3498db', '#d4a017', '#c0392b', '#2d8a4e', '#95a5a6'], borderWidth: 2 }]
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: ['#3498db', '#d4a017', '#c0392b', '#2d8a4e', '#95a5a6'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
             });
 
-            chartInscritos = new Chart(document.getElementById('inscritosChart'), {
+            // Gráfico 3: Inscritos vs No Inscritos
+            const ctx3 = document.getElementById('inscritosChart').getContext('2d');
+            chartInscritos = new Chart(ctx3, {
                 type: 'bar',
                 data: {
                     labels: [],
                     datasets: [
-                        { label: 'Inscritos', data: [], backgroundColor: '#2d8a4e', borderRadius: 4 },
-                        { label: 'No Inscritos', data: [], backgroundColor: '#c0392b', borderRadius: 4 }
+                        {
+                            label: 'Inscritos',
+                            data: [],
+                            backgroundColor: '#2d8a4e',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'No Inscritos',
+                            data: [],
+                            backgroundColor: '#c0392b',
+                            borderRadius: 4
+                        }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { stacked: false }
+                    }
+                }
             });
 
-            chartCondicion = new Chart(document.getElementById('condicionChart'), {
+            // Gráfico 4: Condición Laboral
+            const ctx4 = document.getElementById('condicionChart').getContext('2d');
+            chartCondicion = new Chart(ctx4, {
                 type: 'pie',
-                data: { labels: ['Nombrado', 'Contratado', 'Contratado CAS', 'Encargado'], datasets: [{ data: [0,0,0,0], backgroundColor: ['#1a5f7a', '#3498db', '#d4a017', '#c84b31'], borderWidth: 2 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                data: {
+                    labels: ['Nombrado', 'Contratado', 'Contratado CAS', 'Encargado'],
+                    datasets: [{
+                        data: [0, 0, 0, 0],
+                        backgroundColor: ['#1a5f7a', '#3498db', '#d4a017', '#c84b31'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
             });
         }
 
+        // ===== ACTUALIZAR DASHBOARD =====
         function updateDashboard() {
+            // Filtrar docentes por cargos seleccionados
             filteredDocentes = allDocentes.filter(d => selectedCargos.includes(d.cargo));
 
+            // Calcular métricas
             const total = filteredDocentes.length;
             const inscritos = filteredDocentes.filter(d => d.inscrito === 'SI').length;
             const culminados = filteredDocentes.filter(d => d.estado === 'CULMINADO SIN CERT' || d.estado === 'CERTIFICADO').length;
@@ -2774,22 +3008,28 @@ LENGuA DE SEÑAS PERUA...</td>
             const certificados = filteredDocentes.filter(d => d.estado === 'CERTIFICADO').length;
             const porcentaje = total > 0 ? (culminados / total * 100).toFixed(1) : 0;
 
-            document.getElementById('kpiAvance').innerHTML = porcentaje + '%<span class="kpi-trend ' + (porcentaje >= 37 ? 'trend-up' : 'trend-down') + '">' + (porcentaje >= 37 ? '▲ META SUPERADA' : '▼ FALTA') + '</span>';
+            // Actualizar KPIs
+            const kpiAvance = document.getElementById('kpiAvance');
+            kpiAvance.innerHTML = porcentaje + '%<span class="kpi-trend ' + (porcentaje >= 37 ? 'trend-up' : 'trend-down') + '">' + (porcentaje >= 37 ? '▲ META SUPERADA' : '▼ FALTA') + '</span>';
+
             document.getElementById('kpiDenominador').textContent = total;
             document.getElementById('kpiNumerador').textContent = culminados;
             document.getElementById('kpiCurso').textContent = enCurso;
             document.getElementById('kpiNoInscrito').textContent = noInscritos;
             document.getElementById('kpiTotal').textContent = total;
 
+            // Actualizar barra de progreso
             const bar = document.getElementById('progressBar');
-            bar.style.width = porcentaje + '%';
             bar.textContent = porcentaje + '%';
+            bar.style.width = porcentaje + '%';
             bar.className = 'progress-bar' + (porcentaje >= 37 ? '' : ' warning-bar');
 
+            // Actualizar leyenda
             document.getElementById('legendCulminados').textContent = 'Culminados (' + (total > 0 ? (culminados/total*100).toFixed(1) : 0) + '%)';
             document.getElementById('legendCurso').textContent = 'En Curso (' + (total > 0 ? (enCurso/total*100).toFixed(1) : 0) + '%)';
             document.getElementById('legendNoInsc').textContent = 'No Inscritos (' + (total > 0 ? (noInscritos/total*100).toFixed(1) : 0) + '%)';
 
+            // Datos por UGEL
             const ugelMap = {};
             const ugelLabels = [];
             const ugelPcts = [];
@@ -2797,11 +3037,19 @@ LENGuA DE SEÑAS PERUA...</td>
             const ugelNoInsc = [];
 
             filteredDocentes.forEach(d => {
-                if (!ugelMap[d.ugel]) ugelMap[d.ugel] = { total: 0, culminados: 0, inscritos: 0, noInsc: 0 };
+                if (!ugelMap[d.ugel]) {
+                    ugelMap[d.ugel] = { total: 0, culminados: 0, inscritos: 0, noInsc: 0 };
+                }
                 ugelMap[d.ugel].total++;
-                if (d.estado === 'CULMINADO SIN CERT' || d.estado === 'CERTIFICADO') ugelMap[d.ugel].culminados++;
-                if (d.inscrito === 'SI') ugelMap[d.ugel].inscritos++;
-                if (d.estado === 'NO INSCRITO') ugelMap[d.ugel].noInsc++;
+                if (d.estado === 'CULMINADO SIN CERT' || d.estado === 'CERTIFICADO') {
+                    ugelMap[d.ugel].culminados++;
+                }
+                if (d.inscrito === 'SI') {
+                    ugelMap[d.ugel].inscritos++;
+                }
+                if (d.estado === 'NO INSCRITO') {
+                    ugelMap[d.ugel].noInsc++;
+                }
             });
 
             Object.keys(ugelMap).sort().forEach(ugel => {
@@ -2811,13 +3059,16 @@ LENGuA DE SEÑAS PERUA...</td>
                 ugelNoInsc.push(ugelMap[ugel].noInsc);
             });
 
+            // Actualizar gráficos
             chartUgel.data.labels = ugelLabels;
             chartUgel.data.datasets[0].data = ugelPcts;
             chartUgel.update();
 
             chartEstado.data.datasets[0].data = [
                 filteredDocentes.filter(d => d.estado === 'CULMINADO SIN CERT').length,
-                enCurso, noInscritos, certificados,
+                enCurso,
+                noInscritos,
+                certificados,
                 filteredDocentes.filter(d => d.estado === 'SIN INFORMACIÓN').length
             ];
             chartEstado.update();
@@ -2827,21 +3078,27 @@ LENGuA DE SEÑAS PERUA...</td>
             chartInscritos.data.datasets[1].data = ugelNoInsc;
             chartInscritos.update();
 
+            // Condición laboral
             const condMap = {};
             filteredDocentes.forEach(d => {
                 condMap[d.condicion] = (condMap[d.condicion] || 0) + 1;
             });
             chartCondicion.data.datasets[0].data = [
-                condMap['Nombrado'] || 0, condMap['Contratado'] || 0,
-                condMap['Contratado CAS'] || 0, condMap['Encargado'] || 0
+                condMap['Nombrado'] || 0,
+                condMap['Contratado'] || 0,
+                condMap['Contratado CAS'] || 0,
+                condMap['Encargado'] || 0
             ];
             chartCondicion.update();
 
+            // Actualizar tabla
             updateTable();
+
+            // Actualizar alertas
             updateAlerts(ugelMap);
-            updateTags();
         }
 
+        // ===== ALERTAS =====
         function updateAlerts(ugelMap) {
             const container = document.getElementById('alertsContainer');
             let alerts = [];
@@ -2852,18 +3109,19 @@ LENGuA DE SEÑAS PERUA...</td>
                 const pct = u.total > 0 ? (u.culminados / u.total * 100).toFixed(0) : 0;
 
                 if (pct == 0 && u.total >= 3) {
-                    alerts.push('<div class="alert-item critical"><span class="alert-icon">⚠️</span><div><strong>UGEL ' + ugel + ':</strong> 0% de avance. ' + u.noInsc + ' docentes sin inscripción. Requiere acción inmediata.</div></div>');
+                    alerts.push('<div class="alert-item critical"><span class="alert-icon">⚠️</span><div><strong>UGEL ' + escapeHtml(ugel) + ':</strong> 0% de avance. ' + u.noInsc + ' docentes sin inscripción. Requiere acción inmediata.</div></div>');
                     count++;
                 } else if (pct < 30 && u.total >= 5) {
-                    alerts.push('<div class="alert-item warning"><span class="alert-icon">⏳</span><div><strong>UGEL ' + ugel + ':</strong> Solo ' + pct + '% de avance. ' + u.noInsc + ' sin inscripción.</div></div>');
+                    alerts.push('<div class="alert-item warning"><span class="alert-icon">⏳</span><div><strong>UGEL ' + escapeHtml(ugel) + ':</strong> Solo ' + pct + '% de avance. ' + u.noInsc + ' sin inscripción.</div></div>');
                     count++;
                 }
             });
 
             document.getElementById('alertCount').textContent = count;
-            container.innerHTML = alerts.length > 0 ? alerts.join('') : '<div class="alert-item" style="background:#d4edda; border-left-color:var(--success);"><span class="alert-icon">✅</span><div>No hay alertas críticas con los filtros actuales.</div></div>';
+            container.innerHTML = alerts.length > 0 ? alerts.join('') : '<div class="alert-item" style="background:#d4edda; border-left:4px solid var(--success);"><span class="alert-icon">✅</span><div>No hay alertas críticas con los filtros actuales.</div></div>';
         }
 
+        // ===== TABLA =====
         function updateTable() {
             const tbody = document.getElementById('tableBody');
             const ugelFilter = document.getElementById('filterUgel').value;
@@ -2888,94 +3146,29 @@ LENGuA DE SEÑAS PERUA...</td>
                     const cursoDisplay = d.curso.length > 80 ? d.curso.substring(0, 80) + '...' : d.curso;
                     const certDisplay = d.certificado !== 'nan' ? d.certificado.substring(0, 50) : '';
 
-                    html += '<tr data-ugel="' + d.ugel + '" data-estado="' + d.estado + '" data-cargo="' + d.cargo + '">' +
+                    html += '<tr data-ugel="' + escapeHtml(d.ugel) + '" data-estado="' + escapeHtml(d.estado) + '" data-cargo="' + escapeHtml(d.cargo) + '">' +
                         '<td>' + d.n + '</td>' +
-                        '<td><span class="ugel-tag">' + d.ugel + '</span></td>' +
-                        '<td>' + d.ie + '</td>' +
-                        '<td>' + d.nombres + '</td>' +
-                        '<td>' + d.condicion + '</td>' +
-                        '<td>' + d.cargo + '</td>' +
-                        '<td>' + d.inscrito + '</td>' +
-                        '<td>' + cursoDisplay + '</td>' +
-                        '<td>' + d.fechas + '</td>' +
-                        '<td>' + certDisplay + '</td>' +
-                        '<td><span class="status-badge ' + estadoClass + '">' + d.estado + '</span></td></tr>';
+                        '<td><span class="ugel-tag">' + escapeHtml(d.ugel) + '</span></td>' +
+                        '<td>' + escapeHtml(d.ie) + '</td>' +
+                        '<td>' + escapeHtml(d.nombres) + '</td>' +
+                        '<td>' + escapeHtml(d.condicion) + '</td>' +
+                        '<td>' + escapeHtml(d.cargo) + '</td>' +
+                        '<td>' + escapeHtml(d.inscrito) + '</td>' +
+                        '<td>' + escapeHtml(cursoDisplay) + '</td>' +
+                        '<td>' + escapeHtml(d.fechas) + '</td>' +
+                        '<td>' + escapeHtml(certDisplay) + '</td>' +
+                        '<td><span class="status-badge ' + estadoClass + '">' + escapeHtml(d.estado) + '</span></td></tr>';
                 }
             });
 
             tbody.innerHTML = html;
         }
 
-        function toggleDropdown() {
-            const trigger = document.getElementById('cargoTrigger');
-            const dropdown = document.getElementById('cargoDropdown');
-            trigger.classList.toggle('active');
-            dropdown.classList.toggle('active');
-        }
-
-        function toggleCargo(cargo) {
-            const idx = selectedCargos.indexOf(cargo);
-            if (idx > -1) {
-                selectedCargos.splice(idx, 1);
-            } else {
-                selectedCargos.push(cargo);
-            }
-            document.getElementById('checkAll').checked = selectedCargos.length === allCargos.length;
-            updateTags();
-        }
-
-        function toggleAllCargos(checked) {
-            if (checked) {
-                selectedCargos = [...allCargos];
-            } else {
-                selectedCargos = [];
-            }
-            allCargos.forEach(c => {
-                const id = 'cargo_' + c.replace(/ /g, '_').replace(/[()]/g, '').replace(/\//g, '_');
-                const cb = document.getElementById(id);
-                if (cb) cb.checked = checked;
-            });
-            updateTags();
-        }
-
-        function updateTags() {
-            const container = document.getElementById('selectedTags');
-            const triggerText = document.getElementById('cargoTriggerText');
-
-            if (selectedCargos.length === 0) {
-                triggerText.textContent = 'Ningún cargo seleccionado';
-                container.innerHTML = '<span style="color:#999; font-size:0.85rem;">Selecciona al menos un cargo</span>';
-                return;
-            }
-
-            if (selectedCargos.length === allCargos.length) {
-                triggerText.textContent = 'Todos los cargos (' + allCargos.length + ')';
-            } else {
-                triggerText.textContent = selectedCargos.length + ' de ' + allCargos.length + ' cargos';
-            }
-
-            let html = '';
-            selectedCargos.forEach(c => {
-                html += '<div class="selected-tag">' + c + '<span class="remove" onclick="event.stopPropagation(); toggleCargo('' + c + ''); applyCargoFilter();">×</span></div>';
-            });
-            container.innerHTML = html;
-        }
-
-        function applyCargoFilter() {
-            document.getElementById('cargoTrigger').classList.remove('active');
-            document.getElementById('cargoDropdown').classList.remove('active');
-            updateDashboard();
-        }
-
-        function clearCargoFilter() {
-            toggleAllCargos(false);
-            applyCargoFilter();
-        }
-
         function filterTable() {
             updateTable();
         }
 
+        // ===== ORDENAR TABLA =====
         let sortDirection = {};
         function sortTable(columnIndex) {
             const tbody = document.querySelector('#docentesTable tbody');
@@ -2996,6 +3189,7 @@ LENGuA DE SEÑAS PERUA...</td>
             rows.forEach(row => tbody.appendChild(row));
         }
 
+        // ===== EXPORTAR =====
         function exportToExcel() {
             const table = document.getElementById('docentesTable');
             const html = table.outerHTML;
@@ -3005,24 +3199,6 @@ LENGuA DE SEÑAS PERUA...</td>
             link.download = 'MC-07.01_Seguimiento_DRE_Huancavelica.xls';
             link.click();
         }
-
-        document.addEventListener('click', function(e) {
-            const container = document.querySelector('.multiselect-container');
-            if (!container.contains(e.target)) {
-                document.getElementById('cargoTrigger').classList.remove('active');
-                document.getElementById('cargoDropdown').classList.remove('active');
-            }
-        });
-
-        window.addEventListener('load', () => {
-            initCharts();
-            updateTags();
-            updateDashboard();
-            setTimeout(() => {
-                const bar = document.getElementById('progressBar');
-                bar.style.width = bar.textContent;
-            }, 300);
-        });
     </script>
 </body>
 </html>
