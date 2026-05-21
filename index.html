@@ -1,0 +1,2636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard MC-07.01 | FED 2025-2026 - DRE Huancavelica</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1a5f7a;
+            --secondary: #c84b31;
+            --success: #2d8a4e;
+            --warning: #d4a017;
+            --danger: #c0392b;
+            --info: #3498db;
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --text: #2c3e50;
+            --border: #e0e0e0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #0d3b4c 100%);
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .header .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        .badge-fed {
+            background: var(--secondary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .update-info {
+            text-align: right;
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 25px;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .kpi-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border-left: 5px solid var(--primary);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        .kpi-card.success { border-left-color: var(--success); }
+        .kpi-card.warning { border-left-color: var(--warning); }
+        .kpi-card.danger { border-left-color: var(--danger); }
+        .kpi-card.info { border-left-color: var(--info); }
+        .kpi-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+        .kpi-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .kpi-sub {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        .kpi-trend {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .trend-up { background: #d4edda; color: var(--success); }
+        .trend-down { background: #f8d7da; color: var(--danger); }
+        .trend-neutral { background: #fff3cd; color: var(--warning); }
+        .progress-section {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .progress-header h2 {
+            font-size: 1.2rem;
+            color: var(--text);
+        }
+        .meta-badge {
+            background: var(--warning);
+            color: white;
+            padding: 5px 14px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .progress-bar-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 35px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--success) 0%, #27ae60 100%);
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            width: 0%;
+        }
+        .meta-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--secondary);
+            z-index: 2;
+        }
+        .meta-label {
+            position: absolute;
+            top: -25px;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        .progress-legend {
+            display: flex;
+            gap: 25px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        .chart-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+        .chart-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--text);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .alerts-section {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+        .alerts-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .alert-badge {
+            background: var(--danger);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        .alert-item.critical {
+            background: #fdf2f2;
+            border-left: 4px solid var(--danger);
+        }
+        .alert-item.warning {
+            background: #fffbeb;
+            border-left: 4px solid var(--warning);
+        }
+        .alert-icon {
+            font-size: 1.3rem;
+        }
+        .table-section {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            margin-bottom: 25px;
+        }
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .table-header h3 {
+            font-size: 1.1rem;
+        }
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-select, .filter-input {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+            cursor: pointer;
+        }
+        .filter-input {
+            min-width: 200px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        thead {
+            background: var(--primary);
+            color: white;
+        }
+        th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+        }
+        th:hover {
+            background: #144a5e;
+        }
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-certificado { background: #d4edda; color: var(--success); }
+        .status-culminado { background: #d1ecf1; color: var(--info); }
+        .status-curso { background: #fff3cd; color: var(--warning); }
+        .status-no-inscrito { background: #f8d7da; color: var(--danger); }
+        .status-sin-info { background: #e2e3e5; color: #6c757d; }
+        .ugel-tag {
+            background: var(--primary);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .header-top { flex-direction: column; text-align: center; }
+            .update-info { text-align: center; }
+            .table-header { flex-direction: column; }
+            th, td { padding: 8px 10px; font-size: 0.8rem; }
+        }
+        .btn-export {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn-export:hover {
+            background: #144a5e;
+        }
+        .btn-export.secondary {
+            background: #6c757d;
+        }
+        .btn-export.secondary:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-top">
+            <div>
+                <h1>📊 Dashboard MC-07.01 | Capacitación EBE</h1>
+                <div class="subtitle">FED 2025-2026 | DRE Huancavelica | Indicador: % de docentes y agentes educativos que aprueban cursos en educación inclusiva</div>
+            </div>
+            <span class="badge-fed">FED 2025-2026</span>
+        </div>
+        <div class="update-info">
+            📅 Actualizado: 20 de mayo, 2026 | 🕐 Corte de datos: Seguimiento DRE | 📍 Región: Huancavelica
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <div class="kpi-label">Avance Actual</div>
+                <div class="kpi-value">39.8%<span class="kpi-trend trend-up">▲ META SUPERADA</span></div>
+                <div class="kpi-sub">Meta FED: 37% | Superado por 2.8 pp</div>
+            </div>
+            <div class="kpi-card info">
+                <div class="kpi-label">Denominador</div>
+                <div class="kpi-value">133</div>
+                <div class="kpi-sub">Docentes y agentes educativos EBE</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">Numerador (Culminados)</div>
+                <div class="kpi-value">53</div>
+                <div class="kpi-sub">Docentes que aprobaron al menos un curso</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-label">En Curso (Proyección)</div>
+                <div class="kpi-value">33</div>
+                <div class="kpi-sub">Inscritos que están terminando cursos</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">No Inscritos</div>
+                <div class="kpi-value">40</div>
+                <div class="kpi-sub">Docentes sin inscripción aún</div>
+            </div>
+            <div class="kpi-card info">
+                <div class="kpi-label">Total Registrados</div>
+                <div class="kpi-value">141</div>
+                <div class="kpi-sub">Incluye 8 auxiliares (fuera de indicador)</div>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-header">
+                <h2>📈 Progreso hacia la Meta del Indicador MC-07.01</h2>
+                <span class="meta-badge">META: 37%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar">39.8%</div>
+                <div class="meta-line" style="left: 37%;">
+                    <span class="meta-label">META 37%</span>
+                </div>
+            </div>
+            <div class="progress-legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--success);"></div>
+                    <span>Culminados (39.8%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--warning);"></div>
+                    <span>En Curso (24.8%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--danger);"></div>
+                    <span>No Inscritos (30.1%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--secondary);"></div>
+                    <span>Línea Meta (37%)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>📊 Avance por UGEL (% de culminación)</h3>
+                <div class="chart-container">
+                    <canvas id="ugelChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>🥧 Distribución del Estado de Capacitación</h3>
+                <div class="chart-container">
+                    <canvas id="estadoChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>📚 Inscritos vs No Inscritos por UGEL</h3>
+                <div class="chart-container">
+                    <canvas id="inscritosChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>👥 Distribución por Condición Laboral</h3>
+                <div class="chart-container">
+                    <canvas id="condicionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="alerts-section">
+            <h3>🚨 Alertas Críticas <span class="alert-badge">5</span></h3>
+            <div class="alert-item critical">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>UGEL Surcubamba:</strong> 0% de avance. 4 docentes sin inscripción. Requiere acción inmediata de la especialista.
+                </div>
+            </div>
+            <div class="alert-item critical">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>UGEL Castrovirreyna:</strong> 50% sin inscripción (3 de 6 docentes). 1 docente con curso en progreso.
+                </div>
+            </div>
+            <div class="alert-item warning">
+                <span class="alert-icon">⏳</span>
+                <div>
+                    <strong>UGEL Huancavelica:</strong> 12 docentes en curso pero 0 culminados. Verificar fechas de culminación (bloques terminan 12/06 - 24/06).
+                </div>
+            </div>
+            <div class="alert-item warning">
+                <span class="alert-icon">⏳</span>
+                <div>
+                    <strong>UGEL Angaraes:</strong> 9 docentes en curso, 0 culminados. Pendiente de certificación.
+                </div>
+            </div>
+            <div class="alert-item critical">
+                <span class="alert-icon">📋</span>
+                <div>
+                    <strong>UGEL Tayacaja:</strong> 16 docentes no inscritos. Recordar: 2 renuncias recientes, 4 plazas vacantes en convocatoria (adjudicación 29/05).
+                </div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header">
+                <h3>📋 Seguimiento Nominal de Docentes y Agentes Educativos</h3>
+                <div class="filters">
+                    <select class="filter-select" id="filterUgel" onchange="filterTable()">
+                        <option value="">Todas las UGEL</option>
+                        <option value="ACOBAMBA">Acobamba</option>
+                        <option value="ANGARAES">Angaraes</option>
+                        <option value="CASTROVIRREYNA">Castrovirreyna</option>
+                        <option value="CHURCAMPA">Churcampa</option>
+                        <option value="HUANCAVELICA">Huancavelica</option>
+                        <option value="HUAYTARA">Huaytara</option>
+                        <option value="SURCUBAMABA">Surcubamba</option>
+                        <option value="TAYACAJA">Tayacaja</option>
+                    </select>
+                    <select class="filter-select" id="filterEstado" onchange="filterTable()">
+                        <option value="">Todos los estados</option>
+                        <option value="CERTIFICADO">Certificado</option>
+                        <option value="CULMINADO SIN CERT">Culminado sin cert</option>
+                        <option value="EN CURSO">En curso</option>
+                        <option value="NO INSCRITO">No inscrito</option>
+                    </select>
+                    <input type="text" class="filter-input" id="searchName" placeholder="🔍 Buscar por nombre..." onkeyup="filterTable()">
+                    <button class="btn-export" onclick="exportToExcel()">📥 Excel</button>
+                    <button class="btn-export secondary" onclick="window.print()">📄 PDF</button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table id="docentesTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable(0)">N° ↕</th>
+                            <th onclick="sortTable(1)">UGEL ↕</th>
+                            <th onclick="sortTable(2)">I.E. ↕</th>
+                            <th onclick="sortTable(3)">Apellidos y Nombres ↕</th>
+                            <th onclick="sortTable(4)">Condición ↕</th>
+                            <th onclick="sortTable(5)">Cargo ↕</th>
+                            <th onclick="sortTable(6)">Inscrito ↕</th>
+                            <th onclick="sortTable(7)">Curso ↕</th>
+                            <th onclick="sortTable(8)">Fechas ↕</th>
+                            <th onclick="sortTable(9)">Certificado ↕</th>
+                            <th onclick="sortTable(10)">Estado ↕</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr data-ugel="ACOBAMBA" data-estado="SIN INFORMACIÓN">
+                            <td>1</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35004</td>
+                            <td>CAMARENA LEÓN ANDRÉS AVELINO</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>Lengua de señas peruana y Evaluación y planificación de los aprendizajes en el C...</td>
+                            <td>6/5/2026 - 17/06/2026</td>
+                            <td></td>
+                            <td><span class="status-badge status-sin-info">SIN INFORMACIÓN</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="SIN INFORMACIÓN">
+                            <td>2</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35004</td>
+                            <td>SORIANO MANSILLA JUDITH GENOVEVA</td>
+                            <td>Nombrado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>Detección y atención temprana de necesidades educativas especiales en niños de a...</td>
+                            <td>6/5/2026 - 12/6/2026</td>
+                            <td></td>
+                            <td><span class="status-badge status-sin-info">SIN INFORMACIÓN</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="CULMINADO SIN CERT">
+                            <td>3</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35004</td>
+                            <td>DE LA CRUZ PAYTAN YESENIA </td>
+                            <td>Nombrado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>Lengua de señas peruanas</td>
+                            <td>30/4/2026 - 24/6/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="CULMINADO SIN CERT">
+                            <td>4</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35004</td>
+                            <td>GOMEZ CCORA LILA</td>
+                            <td>Nombrado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>Estrategias Pedagógicas para la atención educativa a estudiantes con trastorno  ...</td>
+                            <td>29/04/26-20/05/26</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="CULMINADO SIN CERT">
+                            <td>5</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35004</td>
+                            <td>LACHO GUTIERREZ AURORA</td>
+                            <td>Contratado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>SI</td>
+                            <td>Estrategias Pedagógicas para la Atención Educativa a Estudiantes con trastorno d...</td>
+                            <td>29/04/26-20/05/26</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="CULMINADO SIN CERT">
+                            <td>6</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35004</td>
+                            <td>SOCA MARAVI KERLY KATIA</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>SI</td>
+                            <td>La integración sensorial, su importancia en los primeros años de vida, grupo 2</td>
+                            <td>30/4/2026 - 3/6/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="CULMINADO SIN CERT">
+                            <td>7</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35004</td>
+                            <td>IZURRAGA VIDAL NATALY SHEYLI</td>
+                            <td>Contratado</td>
+                            <td>Auxiliar</td>
+                            <td>SI</td>
+                            <td>Estrategias Pedagógicas para la atención educativa a estudiantes con trastorno  ...</td>
+                            <td>29/04/26-20/05/26</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="CULMINADO SIN CERT">
+                            <td>8</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35026</td>
+                            <td>CONDORI QUILCA CYNTHIA</td>
+                            <td>Nombrado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>Lengua de señas peruanas</td>
+                            <td>30/4/2026 - 24/6/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="NO INSCRITO">
+                            <td>9</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35026</td>
+                            <td>URBINA CASO LIDIA JOVITA</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="CULMINADO SIN CERT">
+                            <td>10</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35026</td>
+                            <td>JURADO CONDORI NANCY</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagógicas y evaluacion </td>
+                            <td>6/5/2026 - 12/6/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="CULMINADO SIN CERT">
+                            <td>11</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35026</td>
+                            <td>GONZALES VARGAS OLGA</td>
+                            <td>Contratado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>SI</td>
+                            <td>Evaluación y Planificación de los aprendizajes en el CEBE.</td>
+                            <td>30/4/2026 - 12/6/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="CULMINADO SIN CERT">
+                            <td>12</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35026</td>
+                            <td>CASTRO GUTIERREZ, JUDITH</td>
+                            <td>Contratado CAS</td>
+                            <td>Profesional No docente SAANEE</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagógicas para la atención de estudiantes con trastornos </td>
+                            <td>6/5/2026 - 12/6/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="CULMINADO SIN CERT">
+                            <td>13</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35026</td>
+                            <td>GALIDEZ BREÑA CANDY</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>SI</td>
+                            <td>Evaluación y planificación de los aprendizajes en el CEBE 
+Estrategias pedagógic...</td>
+                            <td>6/5/2026 - 12/6/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="CULMINADO SIN CERT">
+                            <td>14</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35027</td>
+                            <td>PINO CARRERA NOEMI</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>Lengua de Señas Peruana - Nivel básico 1, grupo 2
+Detección y atención temprana ...</td>
+                            <td>30/4/2026 - 24/6/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="CULMINADO SIN CERT">
+                            <td>15</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35027</td>
+                            <td>HUILLCAS SEGAMA, SUSI</td>
+                            <td>Contratado CAS</td>
+                            <td>Profesional No docente SAANEE</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagógicas para la atención educativa a estudiantes con trastorno d...</td>
+                            <td>30/4/2026 - 17/6/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="ACOBAMBA" data-estado="CULMINADO SIN CERT">
+                            <td>16</td>
+                            <td><span class="ugel-tag">ACOBAMBA</span></td>
+                            <td>CEBE N° 35027</td>
+                            <td>Yasmin Esmeralda Lagos Untiveros </td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>SI</td>
+                            <td>Deteccion y atencion temprana de necesidades educativas especiales en niños de a...</td>
+                            <td>6/5/2026 - 12/6/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="ANGARAES" data-estado="EN CURSO">
+                            <td>17</td>
+                            <td><span class="ugel-tag">ANGARAES</span></td>
+                            <td>CEBE N° 35005</td>
+                            <td>LUCERO CCENCHO ELY BETTY</td>
+                            <td>Encargado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>Lengua de Señas Peruana Nivel básico
+Detección y atención temprana en niños con ...</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>En curso</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="ANGARAES" data-estado="EN CURSO">
+                            <td>18</td>
+                            <td><span class="ugel-tag">ANGARAES</span></td>
+                            <td>CEBE N° 35005</td>
+                            <td>DE LA CRUZ ESCOBAR LUZ GUADALUPE</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>Lengua de Señas Peruana Nivel básico
+Evaluación y planificación de los aprendiza...</td>
+                            <td>19/02/2026 al 15/04/2026
+06/05/2026 al 12/06/2026
+  </td>
+                            <td>En curso</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="ANGARAES" data-estado="EN CURSO">
+                            <td>19</td>
+                            <td><span class="ugel-tag">ANGARAES</span></td>
+                            <td>CEBE N° 35005</td>
+                            <td>QUISPE DUEÑAS YADIRA CONSUELO</td>
+                            <td>Nombrado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>Lengua de Señas Peruana Nivel básico</td>
+                            <td>29/04/2026 al 05/06/2026 </td>
+                            <td>En curso</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="ANGARAES" data-estado="EN CURSO">
+                            <td>20</td>
+                            <td><span class="ugel-tag">ANGARAES</span></td>
+                            <td>CEBE N° 35005</td>
+                            <td>HUAMANI TORRES THALIA MELISSA</td>
+                            <td>Nombrado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagógicas para la atención educativa a estudiantes con Trastorno d...</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>En curso</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="ANGARAES" data-estado="EN CURSO">
+                            <td>21</td>
+                            <td><span class="ugel-tag">ANGARAES</span></td>
+                            <td>CEBE N° 35005</td>
+                            <td>TAIPE MENESES RUT</td>
+                            <td>Contratado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagógicas para la atención educativa a estudiantes con Trastorno d...</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>En curso</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="ANGARAES" data-estado="EN CURSO">
+                            <td>22</td>
+                            <td><span class="ugel-tag">ANGARAES</span></td>
+                            <td>CEBE N° 35005</td>
+                            <td>HUAYLLANI MARTINEZ EFRAIN</td>
+                            <td>Contratado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>SI</td>
+                            <td>Evaluación y planificación de los aprendizajes en CEBE.</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>En curso</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="ANGARAES" data-estado="NO INSCRITO">
+                            <td>23</td>
+                            <td><span class="ugel-tag">ANGARAES</span></td>
+                            <td>CEBE N° 35005</td>
+                            <td>LAPIERRE CASTILLO JUSELY JULISSA</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="ANGARAES" data-estado="EN CURSO">
+                            <td>24</td>
+                            <td><span class="ugel-tag">ANGARAES</span></td>
+                            <td>CEBE N° 35005</td>
+                            <td>MEZA RAMOS ANA</td>
+                            <td>Contratado</td>
+                            <td>Auxiliar</td>
+                            <td>SI</td>
+                            <td>Evaluación y planificación de los aprendizajes en CEBE.</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>En curso</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="ANGARAES" data-estado="EN CURSO">
+                            <td>25</td>
+                            <td><span class="ugel-tag">ANGARAES</span></td>
+                            <td>PRITE N° 02</td>
+                            <td>PEREZ TORO MARÍA AMANDA</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>Lengua de Señas Peruana Nivel básico
+Detección y atencion temprana en niños con ...</td>
+                            <td>29/04/2026 al 03/07/2026
+29/04/2026 al 26/06/2026 
+29/04/2026 al 05/06/2026</td>
+                            <td>En curso</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="ANGARAES" data-estado="EN CURSO">
+                            <td>26</td>
+                            <td><span class="ugel-tag">ANGARAES</span></td>
+                            <td>PRITE N° 02</td>
+                            <td>MONICA MARIBEL PUMACAHUA HUAMANI</td>
+                            <td>Nombrado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>Lengua de Señas Peruana Nivel básico
+Detección y atencion temprana en niños con ...</td>
+                            <td>29/04/2026 al 03/07/2026
+29/04/2026 al 26/06/2026
+29/04/2026 al 05/06/2026                  </td>
+                            <td>En curso</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="ANGARAES" data-estado="EN CURSO">
+                            <td>27</td>
+                            <td><span class="ugel-tag">ANGARAES</span></td>
+                            <td>PRITE N° 02</td>
+                            <td>LOAYZA SUELDO ROCIO TERESA</td>
+                            <td>Nombrado</td>
+                            <td>Auxiliar</td>
+                            <td>SI</td>
+                            <td> La Integración Sensorial, su importancia en los primeros años de vida. </td>
+                            <td>29/04/2026 al 05/06/2026                       </td>
+                            <td>En curso</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="ANGARAES" data-estado="EN CURSO">
+                            <td>28</td>
+                            <td><span class="ugel-tag">ANGARAES</span></td>
+                            <td>PRITE N° 02</td>
+                            <td>HUAMAN QUIÑONEZ, XIOMARA LOURDES</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico</td>
+                            <td>SI</td>
+                            <td>Lengua de Señas Peruana Nivel básico
+Detección y atencion temprana en niños con ...</td>
+                            <td>29/04/2026 al 03/07/2026    
+29/04/2026 al 26/06/2026      
+29/04/2026 al 05/06/2026                  </td>
+                            <td>En curso</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="CASTROVIRREYNA" data-estado="SIN INFORMACIÓN">
+                            <td>29</td>
+                            <td><span class="ugel-tag">CASTROVIRREYNA</span></td>
+                            <td>CEBE N° 35008</td>
+                            <td>LOZA HERRERA JUANA MISS</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>Estrategias Pedagogicas para la Atemcion Educativa a Estudiantes con Transtorno ...</td>
+                            <td>29/04/26 al 20/05/26</td>
+                            <td></td>
+                            <td><span class="status-badge status-sin-info">SIN INFORMACIÓN</span></td>
+                        </tr>
+                        <tr data-ugel="CASTROVIRREYNA" data-estado="EN CURSO">
+                            <td>30</td>
+                            <td><span class="ugel-tag">CASTROVIRREYNA</span></td>
+                            <td>CEBE N° 35008</td>
+                            <td>PABLO CURACA MARGARETH LIZVALIZA</td>
+                            <td>Nombrado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>Estrategias Pedagogicas para la Atemcion Educativa a Estudiantes con Transtorno ...</td>
+                            <td>29/04/26 al 20/05/26</td>
+                            <td>En curso</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="CASTROVIRREYNA" data-estado="EN CURSO">
+                            <td>31</td>
+                            <td><span class="ugel-tag">CASTROVIRREYNA</span></td>
+                            <td>CEBE N° 35008</td>
+                            <td>MUÑOZ TAYPE MARIBEL</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>Detecion y atencion temprana de necesidades educativas especiales en niños de al...</td>
+                            <td>30/04/2026  al  17/06/2026</td>
+                            <td>En curso</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="CASTROVIRREYNA" data-estado="NO INSCRITO">
+                            <td>32</td>
+                            <td><span class="ugel-tag">CASTROVIRREYNA</span></td>
+                            <td>CEBE N° 35008</td>
+                            <td>MORENO FALVY PAMELA MARIFLOR</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="CASTROVIRREYNA" data-estado="NO INSCRITO">
+                            <td>33</td>
+                            <td><span class="ugel-tag">CASTROVIRREYNA</span></td>
+                            <td>CEBE N° 35028 DIVINO SAN ROQUE</td>
+                            <td>CARDENAS ESCOBAR EDITH JULIETA</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="CASTROVIRREYNA" data-estado="NO INSCRITO">
+                            <td>34</td>
+                            <td><span class="ugel-tag">CASTROVIRREYNA</span></td>
+                            <td>CEBE N° 35028 DIVINO SAN ROQUE</td>
+                            <td>CHOQUE QUISPE FABIOLA CAROLINA</td>
+                            <td>Contratado CAS</td>
+                            <td>Profesional No docente SAANEE</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="CULMINADO SIN CERT">
+                            <td>35</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35009 LOS ANGELES DE MARIA</td>
+                            <td>PAITAN MORAN LUZMILA </td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno d...</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="CULMINADO SIN CERT">
+                            <td>36</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35009 LOS ANGELES DE MARIA</td>
+                            <td>CORONADO MEDIAN ZENAIDA </td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>Lengua de Señas peruana-nivel básico 1</td>
+                            <td>30/04/2026 al 24/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="CULMINADO SIN CERT">
+                            <td>37</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35009 LOS ANGELES DE MARIA</td>
+                            <td>CCOCHACHI CURO YARITSA</td>
+                            <td>Contratado</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>SI</td>
+                            <td>Lengua de Señas peruana-nivel básico 1</td>
+                            <td>30/04/2026 al 24/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="CULMINADO SIN CERT">
+                            <td>38</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35013 LUDWIN VAN BEETHOVEN</td>
+                            <td>CARDENAS VASQUEZ ROSMERI</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno d...</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="NO INSCRITO">
+                            <td>39</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35013 LUDWIN VAN BEETHOVEN</td>
+                            <td>ACHA MINAYA LEYDI YESENIA </td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="CULMINADO SIN CERT">
+                            <td>40</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35013 LUDWIN VAN BEETHOVEN</td>
+                            <td>QUISPE MEZA BERTHA </td>
+                            <td>Contratado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno d...</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="CULMINADO SIN CERT">
+                            <td>41</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35013 LUDWIN VAN BEETHOVEN</td>
+                            <td>YANCE SEGAMA MARLENI</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>SI</td>
+                            <td>Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno d...</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="CULMINADO SIN CERT">
+                            <td>42</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35014 ANNE SULLIVAN</td>
+                            <td>AYUQUE RAMIREZ MARITZA</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno d...</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="CULMINADO SIN CERT">
+                            <td>43</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35014 ANNE SULLIVAN</td>
+                            <td>SEGAMA GIRALDEZ PAUL JOSE </td>
+                            <td>Contratado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno d...</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="CULMINADO SIN CERT">
+                            <td>44</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35014 ANNE SULLIVAN</td>
+                            <td>SOLANO ILIZARBE JOSE CARLOS </td>
+                            <td>Contratado CAS</td>
+                            <td>Profesional No docente SAANEE</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno d...</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="NO INSCRITO">
+                            <td>45</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35014 ANNE SULLIVAN</td>
+                            <td>falta cubrir</td>
+                            <td>Contratado</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="EN CURSO">
+                            <td>46</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35015</td>
+                            <td>YALLI MAMANI YADY</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>LENGUAJE DE SEÑAS NIVEL BASICO</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>EN CURSO </td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="CULMINADO SIN CERT">
+                            <td>47</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35015</td>
+                            <td>MEDINA CANCHARI ENMA GABRIELA </td>
+                            <td>Contratado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagógicas para la atención educativa a estudiantes con Trastorno d...</td>
+                            <td>06/05/2026 al 12/06/2026 </td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="EN CURSO">
+                            <td>48</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35015</td>
+                            <td>OCHOA  POMAHUACRE NELVA</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagógicas para la atención educativa a estudiantes con Trastorno d...</td>
+                            <td>06/05/2026 al 12/06/2026 </td>
+                            <td>EN CURSO </td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="NO INSCRITO">
+                            <td>49</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35015</td>
+                            <td>falta cubrir</td>
+                            <td>Contratado</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="NO INSCRITO">
+                            <td>50</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35024 FLORIANO ONOFRE GAMBOA</td>
+                            <td>GUTIERREZ POCOMUCHA EDWIN CÉSAR</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="CULMINADO SIN CERT">
+                            <td>51</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35024 FLORIANO ONOFRE GAMBOA</td>
+                            <td>RAMOS HUAMANI DINA </td>
+                            <td>Nombrado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagogicas para la atencion educativa a estudiantes con trastorno d...</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="NO INSCRITO">
+                            <td>52</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35024 FLORIANO ONOFRE GAMBOA</td>
+                            <td>GARAVITO AYBAR NORMA SELSA </td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="NO INSCRITO">
+                            <td>53</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35024 FLORIANO ONOFRE GAMBOA</td>
+                            <td>TAIPE OBREGON ABIMAEL ELIAS </td>
+                            <td>Contratado CAS</td>
+                            <td>Trabajador Social</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="NO INSCRITO">
+                            <td>54</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35029 VIRGEN DE COCHARCAS </td>
+                            <td>MANRIQUE ESPINOZA HAVILA SOLEDAD</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="CULMINADO SIN CERT">
+                            <td>55</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35029 VIRGEN DE COCHARCAS </td>
+                            <td>TEODOSIO VARGAS SOTACURO</td>
+                            <td>Nombrado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>EVALUACION Y PLANIFICACION DE LOS APRENDIZAJES CEBE</td>
+                            <td>06/05/2026   al 12/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="CULMINADO SIN CERT">
+                            <td>56</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35029 VIRGEN DE COCHARCAS </td>
+                            <td>ANAYA POMA YOVANA </td>
+                            <td>Contratado CAS</td>
+                            <td>Profesional No docente SAANEE</td>
+                            <td>SI</td>
+                            <td>ESTRATEGIAS PEDAGOGICAS PARA LA ATENCION EDUCATIVA A ESTUDIANTES CON TRASNTORNO ...</td>
+                            <td>13/05/2026 AL 07/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="CHURCAMPA" data-estado="NO INSCRITO">
+                            <td>57</td>
+                            <td><span class="ugel-tag">CHURCAMPA</span></td>
+                            <td>CEBE N° 35029 VIRGEN DE COCHARCAS </td>
+                            <td>NUÑEZ CABEZAS DANIEL CALEB</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>58</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>CASAS PAUCAR ZENAIDA ROCÍO</td>
+                            <td>Encargado</td>
+                            <td>Director(a) sin aula</td>
+                            <td>SI</td>
+                            <td>EVALUACION Y PLANIFICACION DE LOS APRENDIZAJES CEBE 
+LENGUA DE SEÑAS PERUANAS Ni...</td>
+                            <td>06/03/2026 al 22/04/2026 
+30/04/2026 al 24/06/2026</td>
+                            <td>AUN NO SE EMITE EL CERTIFICADO - EN CURSO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>59</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>ESTEBAN MARTÍNEZ EDY LUZ</td>
+                            <td>Nombrado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>ESTRATEGIAS PEDAGOGICAS PARA LA ATENCIÓN EDUCATIVA A ESTUDIANTES CON TRASTORNO D...</td>
+                            <td>10/03/2026 al 19/04/2026 
+30/04/2026 al 24/06/2026</td>
+                            <td>AUN NO SE EMITE EL CERTIFICADO - EN CURSO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>60</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>RAFAEL GARAY NANCY LIDIA</td>
+                            <td>Nombrado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>EVALUACION Y PLANIFICACION DE LOS APRENDIZAJES CEBE
+ LENGUA DE SEÑAS PERUANAS Ni...</td>
+                            <td>06/03/2026 al 22/04/2026 
+30/04/2026 al 24/06/2026</td>
+                            <td>AUN NO SE EMITE EL CERTIFICADO - EN CURSO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>61</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>CENTENO PEREZ RAQUEL</td>
+                            <td>Nombrado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>LENGUA DE SEÑAS PERUANAS Nivel Basico 1</td>
+                            <td>30/04/2026 al 24/06/2026</td>
+                            <td>EN CURSO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>62</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>CLEMENTE CHAHUAYO YESENIA</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>ESTRATEGIAS PEDAGOGICAS PARA LA ATENCIÓN EDUCATIVA A ESTUDIANTES CON TRASTORNO D...</td>
+                            <td>10/03/2026 al 19/04/2026 
+06/03/2026 al 22/04/2026</td>
+                            <td>AUN NO SE EMITE EL CERTIFICADO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>63</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>SOTOMAYOR CAYETANO ROSA AURORA</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>EVALUACION Y PLANIFICACION DE LOS APRENDIZAJES CEBE</td>
+                            <td>06/03/2026 al 22/04/2026</td>
+                            <td>AUN NO SE EMITE EL CERTIFICADO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>64</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>CEPIDA PORRAS RUTH</td>
+                            <td>Nombrado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>SI</td>
+                            <td>ESTRATEGIAS PEDAGOGICAS PARA LA ATENCIÓN EDUCATIVA A ESTUDIANTES CON TRASTORNO D...</td>
+                            <td>10/03/2026 al 19/04/2026 
+30/04/2026 al 24/06/2026</td>
+                            <td>AUN NO SE EMITE EL CERTIFICADO - EN CURSO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>65</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>SAEZ HUAMAN JESUSA</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>ESTRATEGIAS PEDAGOGICAS PARA LA ATENCIÓN EDUCATIVA A ESTUDIANTES CON TRASTORNO D...</td>
+                            <td>10/03/2026 al 19/04/2026 
+06/03/2026 al 22/04/2026 
+30/04/2026 al 24/06/2026</td>
+                            <td>AUN NO SE EMITE EL CERTIFICADO - EN CURSO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>66</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>CUELLAR ARONI ENA LAURA</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>LENGUA DE SEÑAS PERUANAS Nivel Basico 1</td>
+                            <td>30/04/2026 al 24/06/2026</td>
+                            <td>EN CURSO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>67</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>CENTENO HUAMANI LIZBETH</td>
+                            <td>Nombrado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>ESTRATEGIAS PEDAGOGICAS PARA LA ATENCIÓN EDUCATIVA A ESTUDIANTES CON TRASTORNO D...</td>
+                            <td>10/03/2026 al 19/04/2026 
+30/04/2026 al 24/06/2026</td>
+                            <td>AUN NO SE EMITE EL CERTIFICADO - EN CURSO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>68</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>PACCORI CHANCA YAKE</td>
+                            <td>Contratado</td>
+                            <td>Trabajador Social</td>
+                            <td>SI</td>
+                            <td>LENGUA DE SEÑAS PERUANAS Nivel Basico 1</td>
+                            <td>30/04/2026 al 24/06/2026</td>
+                            <td>EN CURSO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>69</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>BENAVENTE ARAMBURU ISABEL CARLA</td>
+                            <td>Contratado</td>
+                            <td>Auxiliar</td>
+                            <td>SI</td>
+                            <td>EVALUACION Y PLANIFICACION DE LOS APRENDIZAJES CEBE</td>
+                            <td>06/05/2026 al 12/06/2026</td>
+                            <td>EN CURSO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>70</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>HUIZA MATAMOROS DELIA</td>
+                            <td>Contratado</td>
+                            <td>Auxiliar</td>
+                            <td>SI</td>
+                            <td>EVALUACION Y PLANIFICACION DE LOS APRENDIZAJES CEBE</td>
+                            <td>06/03/2026 al 22/04/2026</td>
+                            <td>AUN NO SE EMITE EL CERTIFICADO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="EN CURSO">
+                            <td>71</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CEBE N° 35001</td>
+                            <td>BASTO REYES CINTHIA CRISTINA</td>
+                            <td>Contratado</td>
+                            <td>Tecnologo Médico</td>
+                            <td>SI</td>
+                            <td>LENGUA DE SEÑAS PERUANAS Nivel Basico 1</td>
+                            <td>30/04/2026 al 24/06/2026</td>
+                            <td>EN CURSO</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="SIN INFORMACIÓN">
+                            <td>72</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>PRITE N° 01</td>
+                            <td>MATAMOROS LEÓN LILA KARIN</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>DETECCION Y ATENCIÓN TEMPRANA DE NECESIDADES EDUCATIVAS ESPECIALES EN NIÑOS DE A...</td>
+                            <td>30/04/2026 al 17/06/2026 
+30/04/2026 al 24/06/2026</td>
+                            <td></td>
+                            <td><span class="status-badge status-sin-info">SIN INFORMACIÓN</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="NO INSCRITO">
+                            <td>73</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>PRITE N° 01</td>
+                            <td>SOLANO RAMOS, GABRIELA SALLY</td>
+                            <td>Contratado CAS</td>
+                            <td>Psicóloga</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="SIN INFORMACIÓN">
+                            <td>74</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>PRITE N° 01</td>
+                            <td>MUÑOZ TAIPE ESTHER YOVANA</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>DETECCION Y ATENCIÓN TEMPRANA DE NECESIDADES EDUCATIVAS ESPECIALES EN NIÑOS DE A...</td>
+                            <td>30/04/2026 al 17/06/2026 </td>
+                            <td></td>
+                            <td><span class="status-badge status-sin-info">SIN INFORMACIÓN</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="SIN INFORMACIÓN">
+                            <td>75</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>PRITE N° 01</td>
+                            <td>QUINTO MALLQUI, FANNY LISBETH</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>DETECCION Y ATENCIÓN TEMPRANA DE NECESIDADES EDUCATIVAS ESPECIALES EN NIÑOS DE A...</td>
+                            <td>30/04/2026 al 17/06/2026 </td>
+                            <td></td>
+                            <td><span class="status-badge status-sin-info">SIN INFORMACIÓN</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="NO INSCRITO">
+                            <td>76</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CREBE RH</td>
+                            <td>ESPINOZA CAPCHA ANGÉLICA</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) sin aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="HUANCAVELICA" data-estado="NO INSCRITO">
+                            <td>77</td>
+                            <td><span class="ugel-tag">HUANCAVELICA</span></td>
+                            <td>CREBE RH</td>
+                            <td>MIGUEL BENDEZÚ KELY KEIMENA</td>
+                            <td>Contratado CAS</td>
+                            <td>Profesional docente CREBE</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="HUAYTARA" data-estado="CULMINADO SIN CERT">
+                            <td>78</td>
+                            <td><span class="ugel-tag">HUAYTARA</span></td>
+                            <td>CEBE N° 35007</td>
+                            <td>ESPINOZA OCHANTE ROSA CLEMENTINA</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>DETECCION Y ATENCION TEMPRANA DE NECESIDADES EDUCATIVAS</td>
+                            <td>10 de abril 2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="HUAYTARA" data-estado="CULMINADO SIN CERT">
+                            <td>79</td>
+                            <td><span class="ugel-tag">HUAYTARA</span></td>
+                            <td>CEBE N° 35007</td>
+                            <td>NOHEMI ROXANA QUISPE QUINCHO</td>
+                            <td>Nombrado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>DETECCION Y ATENCION TEMPRANA DE NECESIDADES EDUCATIVAS</td>
+                            <td>10 de abril 2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="HUAYTARA" data-estado="NO INSCRITO">
+                            <td>80</td>
+                            <td><span class="ugel-tag">HUAYTARA</span></td>
+                            <td>CEBE N° 35007</td>
+                            <td>REYES PARIAS,JUSTA DILCIA</td>
+                            <td>Contratado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>NO</td>
+                            <td>NINGUNO</td>
+                            <td>NO</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="HUAYTARA" data-estado="CULMINADO SIN CERT">
+                            <td>81</td>
+                            <td><span class="ugel-tag">HUAYTARA</span></td>
+                            <td>CEBE N° 35007</td>
+                            <td>FLOR ADELITA GONZALES REYES</td>
+                            <td>Contratado CAS</td>
+                            <td>Profesional No docente SAANEE</td>
+                            <td>SI</td>
+                            <td>ESTRATEGIAS PEDAGOGICAS PARA LA ATENCION EDUCATIVA A ESTUDIANTES CON TRNSTORNO D...</td>
+                            <td>06/05/2026 -12/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="HUAYTARA" data-estado="CULMINADO SIN CERT">
+                            <td>82</td>
+                            <td><span class="ugel-tag">HUAYTARA</span></td>
+                            <td>CEBE N° 35010</td>
+                            <td>CENTENO CCANTO ANA</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>DETECCION Y ATENCION TEMPRANA DE NECESIDADES</td>
+                            <td>20/04/2026 - 22/05/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="HUAYTARA" data-estado="CULMINADO SIN CERT">
+                            <td>83</td>
+                            <td><span class="ugel-tag">HUAYTARA</span></td>
+                            <td>CEBE N° 35010</td>
+                            <td>CARHUAPOMA CANALES MARLENY</td>
+                            <td>Nombrado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>SI</td>
+                            <td>ESTRATEGIAS PEDAGOGICAS PARA LA ATENCION EDUCATIVA A ESTUDIANTES CON TRNSTORNO D...</td>
+                            <td>06/05/2026 - 24/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="HUAYTARA" data-estado="CULMINADO SIN CERT">
+                            <td>84</td>
+                            <td><span class="ugel-tag">HUAYTARA</span></td>
+                            <td>CEBE N° 35011</td>
+                            <td>DURAND FLORES VIOLETA</td>
+                            <td>Contratado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>SI</td>
+                            <td>ESTRATEGIAS PEDAGOGICAS PARA LA ATENCION EDUCATIVA A ESTUDIANTES CON TRNSTORNO D...</td>
+                            <td>06/05/2026 - 24/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="HUAYTARA" data-estado="CULMINADO SIN CERT">
+                            <td>85</td>
+                            <td><span class="ugel-tag">HUAYTARA</span></td>
+                            <td>CEBE N° 35010</td>
+                            <td>DE LA CRUZ RIVEROS EDWIN</td>
+                            <td>Contratado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>SI</td>
+                            <td>ESTRATEGIAS PEDAGOGICAS PARA LA ATENCION EDUCATIVA A ESTUDIANTES CON TRNSTORNO D...</td>
+                            <td>06/05/2026 - 24/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="HUAYTARA" data-estado="CULMINADO SIN CERT">
+                            <td>86</td>
+                            <td><span class="ugel-tag">HUAYTARA</span></td>
+                            <td>CEBE N° 35011</td>
+                            <td>BENITO ZUASNABAR YENNY</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>LENGUA DE SEÑAS PERUAN. NIVEL BASICO 1
+DETECCION Y ATENCION TEMPRANA DE NEE EN N...</td>
+                            <td>30/04/2026-24/06/2026 
+30/04/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="HUAYTARA" data-estado="CULMINADO SIN CERT">
+                            <td>87</td>
+                            <td><span class="ugel-tag">HUAYTARA</span></td>
+                            <td>CEBE N° 35011</td>
+                            <td>FLORES MORALES ARSENIA ELIZABETH</td>
+                            <td>Contratado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>LENGUA DE SEÑAS PERUAN. NIVEL BASICO 1
+DETECCION Y ATENCION TEMPRANA DE NEE EN N...</td>
+                            <td>30/04/2026-24/06/2026
+30/04/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="HUAYTARA" data-estado="NO INSCRITO">
+                            <td>88</td>
+                            <td><span class="ugel-tag">HUAYTARA</span></td>
+                            <td>CEBE N° 35011</td>
+                            <td>SANTIAGO PALOMINO YOLANDA ISABEL</td>
+                            <td>Contratado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>NO</td>
+                            <td>NINGUNO</td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="HUAYTARA" data-estado="NO INSCRITO">
+                            <td>89</td>
+                            <td><span class="ugel-tag">HUAYTARA</span></td>
+                            <td>CEBE N° 35011</td>
+                            <td>EPIFANIA OLGA PARVINA PALACIOS</td>
+                            <td>Contratado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>NO</td>
+                            <td>NINGUNO</td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="HUAYTARA" data-estado="NO INSCRITO">
+                            <td>90</td>
+                            <td><span class="ugel-tag">HUAYTARA</span></td>
+                            <td>CEBE N° 35011</td>
+                            <td>HUAMANI LLOCLLA,DEYSI YOANA</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>NO</td>
+                            <td>NINGUNO</td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>91</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35002</td>
+                            <td>PORTA GAVILAN MIRIAM</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>DETECCION Y ATENCION TEMPRANA DE NECESIDADES</td>
+                            <td>30/04/2026 - 04/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>92</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35002</td>
+                            <td>FLORES ZUASNABAR WILMER MARIO</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>NO</td>
+                            <td>NINGUNO </td>
+                            <td>NINGUNO</td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="EN CURSO">
+                            <td>93</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35002</td>
+                            <td>POMAHUALI PIÑAS ADA GABRIELA</td>
+                            <td>Nombrado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>LA INTEGRACIÓN SENSORIAL, SU IMPORTANCIA EN LOS PRIMEROS AÑOS DE VIDA
+LENGUA DE ...</td>
+                            <td>INICIO 19/02/2026 /FIN 15/04/2026
+Inicio: 24/02/2026/Fin: 13/04/2026 
+Inicio: 20/01/2026/Fin: 17/03/2026 
+Inicio: 16/01/2026/Fin: 26/02/2026
+</td>
+                            <td>3 SI/ 2 EN ESPERA</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CERTIFICADO">
+                            <td>94</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35002</td>
+                            <td>ACUÑA CAMARGO VERONICA </td>
+                            <td>Nombrado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>SI</td>
+                            <td>Detección y atención temprDetección y atención temprana de necesidades educativa...</td>
+                            <td>24/02/26   al  13/04/26 
+24/02/26  al   13/04/26</td>
+                            <td>SI</td>
+                            <td><span class="status-badge status-certificado">CERTIFICADO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>95</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35002</td>
+                            <td>CASTRO OLARTE FANNY YUDITH</td>
+                            <td>Nombrado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>LA INTEGRACIÓN SENSORIAL, SU IMPORTANCIA EN LOS PRIMEROS AÑOS DE VIDA</td>
+                            <td>30/04/2026 - 03/06/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>96</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35002</td>
+                            <td>ROQUE JIMENEZ ERIKA</td>
+                            <td>Nombrado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>SI</td>
+                            <td>LENGUA DE SEÑAS PERUANAS. NIVEL BASICO 1
+ESTRATEGIAS PEDAGOGICAS PARA LA ATENCIO...</td>
+                            <td>30 DE ABRIL AL 24 DE JUNIO 
+06 DE MAYO AL 12 DE JUNIO</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>97</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35002</td>
+                            <td>En convocatoria </td>
+                            <td>Contratado CAS</td>
+                            <td>Profesional No docente SAANEE</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>98</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35002</td>
+                            <td>SOLANO IRAZABAL, SHELENI</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>NO</td>
+                            <td>NINGUNO</td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>99</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35002</td>
+                            <td>ESPINOZA MERCADO SONIA MONICA</td>
+                            <td>Nombrado</td>
+                            <td>Auxiliar</td>
+                            <td>NO</td>
+                            <td>NINGUNO</td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>100</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35002</td>
+                            <td>GOZAR LANDA LILIANA KATTY</td>
+                            <td>Nombrado</td>
+                            <td>Auxiliar</td>
+                            <td>SI</td>
+                            <td>BASICO FORMATIVO DE SEGURIDAD EN EL TRABAJO</td>
+                            <td>18 DE MAYO HASTA 8 DE JUNIO 2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>101</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35016</td>
+                            <td>GUZMÁN DELGADO JHULISSA</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>102</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35016</td>
+                            <td>VILA ROMANI SEUMARA ANDREA</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>103</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35017</td>
+                            <td>CASAS DE LA CRUZ JUDITH</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>LENGUAJE DE SEÑAS PERUANAS NIVEL BASICO</td>
+                            <td>06 DE MAYO AL 12 DE JUNIO</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>104</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35017</td>
+                            <td>IZARRA LIZARRAGA MARIA ISABEL</td>
+                            <td>Nombrado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>LENGUA DE SEÑAS PERUANAS. NIVEL BASICO 1
+ESTRATEGIAS PARA LA ATENCION A ESTUDIAN...</td>
+                            <td>30 DE ABRIL AL 24 DE JUNIO 
+06 DE MAYO AL 12 DE JUNIO</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>105</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35017</td>
+                            <td>PEÑA SILVERA DANITZA NAYELY</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>SI</td>
+                            <td>LENGUA DE SEÑAS PERUANAS. NIVEL BASICO 1/ ESTRATEGIAS PARA LA ATENCION A ESTUDIA...</td>
+                            <td>30 DE ABRIL AL 24 DE JUNIO 
+06 DE MAYO AL 12 DE JUNIO</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>106</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35017</td>
+                            <td>RODRIGUEZ GUTARRA HENNIFER FABIOLA</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>LENGUA DE SEÑAS PERUANAS. NIVEL BASICO 1
+EVALUACION Y PLANIFICACION DE LOS APREN...</td>
+                            <td>30 DE ABRIL AL 24 DE JUNIO</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>107</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35018</td>
+                            <td>MANCHA CHAHUAYO ALICIA</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>108</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35018</td>
+                            <td>SOTACURO SALVATIERRA NANCY VIOLETA</td>
+                            <td>Nombrado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>109</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35018</td>
+                            <td>RUTTI CASTILLON AYDEE</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>110</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35019</td>
+                            <td>HUAROC ARROYO RUTH TORIBIA</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>Evaluación y planificación de los aprendizajes en el cebe  </td>
+                            <td>12 -05-2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>111</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35019</td>
+                            <td>ORELLANA HUAMAN JUANA IRIS</td>
+                            <td>Nombrado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>Evaluación y planificación de los aprendizajes en el cebe </td>
+                            <td>2026-05-12 00:00:00</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>112</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35019</td>
+                            <td>YALLICO OLIVAR ELIZABETH YOBANA</td>
+                            <td>Nombrado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>113</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35019</td>
+                            <td>HUALLPA JURADO HOOVER RIDER</td>
+                            <td>Contratado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>114</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35019</td>
+                            <td>JOANY CUCHITA JIMENEZ AGUAYO</td>
+                            <td>Contratado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>115</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35019</td>
+                            <td>CLEMENTE SANCHEZ LEIDY MIRELLA</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>Detección y atención temprana de necesidades educativas especiales en niños de a...</td>
+                            <td>2026-05-12 00:00:00</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>116</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35019</td>
+                            <td>INFANZON MEDFINA RUTH KAREN</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>117</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35019</td>
+                            <td>MEZA BONILLA ESTHER</td>
+                            <td>Nombrado</td>
+                            <td>Auxiliar</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>118</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35020</td>
+                            <td>GARCÍA QUISPE VALERI</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>la integracion sensorial su importancia en los primeros años de vida (grupo 2)</td>
+                            <td>14/04/2026 - 12/05/2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="SIN INFORMACIÓN">
+                            <td>119</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35020</td>
+                            <td>CONDORI CCANTO EDGAR</td>
+                            <td>Nombrado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>SI</td>
+                            <td>Lengua de señas peruana, nivel basico, </td>
+                            <td>2026-04-14 00:00:00</td>
+                            <td></td>
+                            <td><span class="status-badge status-sin-info">SIN INFORMACIÓN</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>120</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35020</td>
+                            <td>PARIONA AVILA, ANEL</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>121</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35021</td>
+                            <td>JUÑO CLAROS CINTYA ARACELLY</td>
+                            <td>Nombrado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>EVALUACION Y PLANIFICACION DELO APRENDIZAJES EN EL CEBE
+LENGuA DE SEÑA PERUANA N...</td>
+                            <td>30 ABRIL DEL 2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>122</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35021</td>
+                            <td>FLORES GALINDO JESENIA</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>EVALUACION Y PLANIFICACION DELO APRENDIZAJES EN EL CEBE
+LENGuA DE SEÑA PERUANA N...</td>
+                            <td>30 DE ABRIL DEL 2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>123</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35021</td>
+                            <td>BALVIN VILLANUEVA, JHOLBEIN JHOSLY</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>SI</td>
+                            <td>EVALUACION Y PLANIFICACION DELO APRENDIZAJES EN EL CEBE
+LENGuA DE SEÑA PERUANA N...</td>
+                            <td>30DE ABRIL DEL 2026</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="EN CURSO">
+                            <td>124</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35022</td>
+                            <td>GAMBOA LLANTOY YENY</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>ESTRATEGIA PEDAGOGICA PARA ATENCION EDUCATIVA A ESTUDIANTES CON TRASTORNO ESPECT...</td>
+                            <td>6 Mayo / 12 Junio    
+30 de abril al 17 junio</td>
+                            <td>En proceso de studio </td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="EN CURSO">
+                            <td>125</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35022</td>
+                            <td>POMA HUAROC NORA LINA</td>
+                            <td>Nombrado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>ESTRATEGIA PEDAGOGICA PARA ATENCION EDUCATIVA A ESTUDIANTES CON TRASTORNO ESPECT...</td>
+                            <td>6 de Mayo / 12 junio</td>
+                            <td>En proceso de studio </td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="EN CURSO">
+                            <td>126</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35022</td>
+                            <td>LOPEZ LOPEZ, JUAN GABRIEL </td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>SI</td>
+                            <td>EVALUACION Y PLANIFICACION DELO APRENDIZAJES EN EL CEBE,  
+LENGuA DE SEÑAS PERUA...</td>
+                            <td>30 Abril /24 de Junio</td>
+                            <td>En proceso de studio </td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>127</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35022</td>
+                            <td>CABEZAS SEDANO ROBERTO</td>
+                            <td>Contratado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="EN CURSO">
+                            <td>128</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35023</td>
+                            <td>CCANTO CONDORI ELIZABETH PAULA</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>Planificación curricular en Basica Especial</td>
+                            <td>Del 06 de mayo al 17 de junio</td>
+                            <td>En proceso de estudio</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="EN CURSO">
+                            <td>129</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35023</td>
+                            <td>ESPINOZA TAIPE MARTHA</td>
+                            <td>Nombrado</td>
+                            <td>Coordinador(a) SAANEE</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagogicas para la atención educativa a estudiantes con Trastorno d...</td>
+                            <td>06 de mayo al 12 de junio --30 de abril al 24 de junio</td>
+                            <td>En proceso de estudio</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="EN CURSO">
+                            <td>130</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35023</td>
+                            <td>LONDOÑE HERRERA MARUJA</td>
+                            <td>Contratado</td>
+                            <td>Profesional SAANEE</td>
+                            <td>SI</td>
+                            <td>Planificación curricular en Basica Especial</td>
+                            <td>Del 06 de mayo al 17 de junio</td>
+                            <td>En proceso de estudio</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>131</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35023</td>
+                            <td>En convocatoria </td>
+                            <td>Contratado CAS</td>
+                            <td>Profesional No docente SAANEE</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="EN CURSO">
+                            <td>132</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>CEBE N° 35023</td>
+                            <td>ELESCANO GUERREROS LUIS ALBERTO</td>
+                            <td>Contratado CAS</td>
+                            <td>Tecnólogo Médico </td>
+                            <td>SI</td>
+                            <td>Estrategias pedagogicas para la atencion educativa a estudiantes con Transtorno ...</td>
+                            <td>6 de mayo al 07 de junio</td>
+                            <td>En proceso de estudio</td>
+                            <td><span class="status-badge status-curso">EN CURSO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>133</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>PRITE N°03</td>
+                            <td>MORALES VALENCIA ALIDA MILAGROS</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>SI</td>
+                            <td>Detección y atención temprana de necesidades educativas especiales en niños de a...</td>
+                            <td>30 de abril al 6 de junio</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>134</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>PRITE N°03</td>
+                            <td>NIVARDA VILLEGAS MENDOZA</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>Estrategias pedagogicas para la atencion educativa a estudiantes con Transtorno ...</td>
+                            <td>14 de abril al 11 de junio</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>135</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>PRITE N°03</td>
+                            <td>SYNTHIA ECHAVIGURIN GALA </td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>Detección y atención temprana de necesidades educativas especiales en niños de a...</td>
+                            <td>30 de abril al 6 de junio</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="NO INSCRITO">
+                            <td>136</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>PRITE N°03</td>
+                            <td>FLOR YOVANNA QUISPE CHAHUAYO</td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="TAYACAJA" data-estado="CULMINADO SIN CERT">
+                            <td>137</td>
+                            <td><span class="ugel-tag">TAYACAJA</span></td>
+                            <td>PRITE N°03</td>
+                            <td>MARYMAR ELBA GIRON CLEMENTE</td>
+                            <td>Contratado CAS</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>SI</td>
+                            <td>La integracion sensorial: su importancia en los primeros años de vida, grupo 2</td>
+                            <td>30 de abril al 3 de junio</td>
+                            <td>NO</td>
+                            <td><span class="status-badge status-culminado">CULMINADO SIN CERT</span></td>
+                        </tr>
+                        <tr data-ugel="SURCUBAMABA" data-estado="NO INSCRITO">
+                            <td>138</td>
+                            <td><span class="ugel-tag">SURCUBAMABA</span></td>
+                            <td>CEBE N° 35025</td>
+                            <td>HUAMANI NOLASCO MARIELA</td>
+                            <td>Nombrado</td>
+                            <td>Director(a) con aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="SURCUBAMABA" data-estado="NO INSCRITO">
+                            <td>139</td>
+                            <td><span class="ugel-tag">SURCUBAMABA</span></td>
+                            <td>CEBE N° 35025</td>
+                            <td>CAMACLLANQUI VILLAMANRIQUE NOEMI ANGELA </td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="SURCUBAMABA" data-estado="NO INSCRITO">
+                            <td>140</td>
+                            <td><span class="ugel-tag">SURCUBAMABA</span></td>
+                            <td>CEBE N° 35025</td>
+                            <td>CORDOVA RIVEROS ANDERSON FÉLIX </td>
+                            <td>Contratado</td>
+                            <td>Docente/Tutor de aula</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                        <tr data-ugel="SURCUBAMABA" data-estado="NO INSCRITO">
+                            <td>141</td>
+                            <td><span class="ugel-tag">SURCUBAMABA</span></td>
+                            <td>CEBE N° 35025</td>
+                            <td>HUANCAUQUI ZUÑIGA  GIANINA PAOLA</td>
+                            <td>Contratado CAS</td>
+                            <td>Psicologa</td>
+                            <td>NO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><span class="status-badge status-no-inscrito">NO INSCRITO</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>📊 Sistema de Monitoreo MC-07.01 | FED 2025-2026 | MIDIS - MINEDU</p>
+            <p>DRE Huancavelica | Especialista: Cley Montoya | Actualización manual - Conectar a Google Sheets próximamente</p>
+            <p style="margin-top: 10px; font-size: 0.75rem; color: #95a5a6;">
+                Basado en ficha técnica MC-07.01 | Fuente: Seguimiento DRE + PerúEduca | Método: Cruce nominal NEXUS-PerúEduca
+            </p>
+        </div>
+    </div>
+
+    <script>
+
+        const ugelLabels = ["ACOBAMBA", "ANGARAES", "CASTROVIRREYNA", "CHURCAMPA", "HUANCAVELICA", "HUAYTARA", "SURCUBAMABA", "TAYACAJA"];
+        const ugelPcts = [80.0, 0.0, 0.0, 56.5, 0.0, 69.2, 0.0, 43.2];
+        const ugelInscritos = [14, 9, 3, 15, 15, 9, 0, 28];
+        const ugelNoInsc = [1, 1, 3, 8, 3, 4, 4, 16];
+
+        // GRÁFICO 1: Avance por UGEL
+        new Chart(document.getElementById('ugelChart'), {
+            type: 'bar',
+            data: {
+                labels: ugelLabels,
+                datasets: [{
+                    label: '% Culminados',
+                    data: ugelPcts,
+                    backgroundColor: [
+                        '#2d8a4e', '#d4a017', '#c0392b', '#2d8a4e', 
+                        '#d4a017', '#2d8a4e', '#c0392b', '#3498db'
+                    ],
+                    borderRadius: 6,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { callback: function(value) { return value + '%' } }
+                    }
+                }
+            }
+        });
+
+        // GRÁFICO 2: Distribución de Estados
+        new Chart(document.getElementById('estadoChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Culminado sin Cert', 'En Curso', 'No Inscrito', 'Certificado', 'Sin Info'],
+                datasets: [{
+                    data: [54, 37, 42, 1, 7],
+                    backgroundColor: ['#3498db', '#d4a017', '#c0392b', '#2d8a4e', '#95a5a6'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // GRÁFICO 3: Inscritos vs No Inscritos
+        new Chart(document.getElementById('inscritosChart'), {
+            type: 'bar',
+            data: {
+                labels: ugelLabels,
+                datasets: [
+                    {
+                        label: 'Inscritos',
+                        data: ugelInscritos,
+                        backgroundColor: '#2d8a4e',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'No Inscritos',
+                        data: ugelNoInsc,
+                        backgroundColor: '#c0392b',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    x: { stacked: false },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // GRÁFICO 4: Condición Laboral
+        new Chart(document.getElementById('condicionChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Nombrado', 'Contratado', 'Contratado CAS', 'Encargado'],
+                datasets: [{
+                    data: [61, 47, 31, 2],
+                    backgroundColor: ['#1a5f7a', '#3498db', '#d4a017', '#c84b31'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // FILTROS DE TABLA
+        function filterTable() {
+            const ugelFilter = document.getElementById('filterUgel').value;
+            const estadoFilter = document.getElementById('filterEstado').value;
+            const searchFilter = document.getElementById('searchName').value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+
+            rows.forEach(row => {
+                const ugel = row.getAttribute('data-ugel');
+                const estado = row.getAttribute('data-estado');
+                const nombre = row.cells[3].textContent.toLowerCase();
+
+                const matchUgel = !ugelFilter || ugel === ugelFilter;
+                const matchEstado = !estadoFilter || estado === estadoFilter;
+                const matchSearch = !searchFilter || nombre.includes(searchFilter);
+
+                row.style.display = matchUgel && matchEstado && matchSearch ? '' : 'none';
+            });
+        }
+
+        // ORDENAR TABLA
+        let sortDirection = {};
+        function sortTable(columnIndex) {
+            const tbody = document.querySelector('#docentesTable tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            sortDirection[columnIndex] = !sortDirection[columnIndex];
+            const dir = sortDirection[columnIndex] ? 1 : -1;
+
+            rows.sort((a, b) => {
+                let aVal = a.cells[columnIndex].textContent.trim();
+                let bVal = b.cells[columnIndex].textContent.trim();
+
+                if (!isNaN(aVal) && !isNaN(bVal)) {
+                    return (parseFloat(aVal) - parseFloat(bVal)) * dir;
+                }
+                return aVal.localeCompare(bVal) * dir;
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // EXPORTAR A EXCEL
+        function exportToExcel() {
+            const table = document.getElementById('docentesTable');
+            const html = table.outerHTML;
+            const url = 'data:application/vnd.ms-excel;base64,' + btoa(unescape(encodeURIComponent(html)));
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'MC-07.01_Seguimiento_DRE_Huancavelica.xls';
+            link.click();
+        }
+
+        // ANIMACIÓN BARRA PROGRESO
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('progressBar').style.width = '39.8%';
+            }, 300);
+        });
+    </script>
+</body>
+</html>
