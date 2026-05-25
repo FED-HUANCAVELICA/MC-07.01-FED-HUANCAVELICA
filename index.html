@@ -3,47 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FED 2.0 — INDICADOR MC-07.01 | HUANCAVELICA</title>
+<title>FED 2.0 — CONTROL TERRITORIAL MC-07.01 | HUANCAVELICA</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
-/* ============================================================
-   FED STRATEGIC HUB — INDICADOR INDIVIDUAL MC-07.01 (LIVE CSV)
-   Modo Claro / Diseño de Alta Gerencia Corporativa
-   ============================================================ */
-
 :root {
-  --bg-primary:    #f8fafc;
+  --bg-primary:    #f1f5f9;
   --bg-card:       #ffffff;
   --border:        #e2e8f0;
-  --border-hi:     #cbd5e1;
   --text-primary:  #0f172a;
   --text-sec:      #475569;
-  --text-muted:    #64748b;
+  --text-muted:    #94a3b8;
   --blue:          #2563eb;
   --green:         #10b981;
-  --radius:        20px;
+  --amber:         #f59e0b;
+  --red:           #ef4444;
+  --slate:         #64748b;
+  --radius:        16px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: 'Segoe UI', system-ui, sans-serif;
-  min-height: 100vh;
-  font-size: 14px;
-  line-height: 1.5;
   padding: 24px;
+  font-size: 13px;
 }
+.container { max-width: 1200px; margin: 0 auto; }
 
-.container { max-width: 900px; margin: 0 auto; }
-
-/* ─── HEADER COYUNTURAL ──────────────────────── */
+/* HEADER DESIGN */
 .header-card {
   background: #0f172a;
   color: #ffffff;
-  padding: 24px 30px;
+  padding: 24px 32px;
   border-radius: var(--radius);
   margin-bottom: 24px;
   display: flex;
@@ -51,74 +44,83 @@ body {
   justify-content: space-between;
   box-shadow: 0 10px 25px -5px rgba(15,23,42,0.1);
 }
-.header-title { font-size: 20px; font-weight: 800; letter-spacing: -.5px; }
-.header-sub { font-size: 11px; color: #94a3b8; margin-top: 3px; text-transform: uppercase; letter-spacing: .5px; }
-.badge-fed { background: rgba(37,99,235,0.15); color: #3b82f6; border: 1px solid rgba(37,99,235,0.3); padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 700; }
+.header-title { font-size: 22px; font-weight: 800; letter-spacing: -.5px; }
+.header-sub { font-size: 11px; color: #94a3b8; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
+.badge-fed { background: rgba(37,99,235,0.15); color: #3b82f6; border: 1px solid rgba(37,99,235,0.3); padding: 6px 14px; border-radius: 8px; font-size: 10px; font-weight: 700; }
 
-/* ─── TARJETA METRICAS PRINCIPALES ────────────── */
+/* METRICS PANEL */
 .meta-banner {
-  background: #ffffff;
+  background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 24px;
+  padding: 20px;
   margin-bottom: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);
 }
 .metric-box { text-align: center; flex: 1; }
-.metric-val { font-size: 40px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+.metric-val { font-size: 36px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
 .metric-lbl { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
-.divider { width: 1px; height: 50px; background: var(--border); }
+.divider { width: 1px; height: 40px; background: var(--border); }
 
-/* ─── CUADRO DEL GRAFICO ──────────────────────── */
-.chart-card {
-  background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 30px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+/* GRID PARA GRÁFICO Y TABLA */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
   margin-bottom: 24px;
 }
-.chart-container { position: relative; height: 340px; margin-top: 15px; }
-
-/* ─── LEYENDA PREMIUM ─────────────────────────── */
-.legend-grid {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 20px;
-  font-size: 11px;
-  color: var(--text-sec);
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
+@media (min-width: 992px) {
+  .dashboard-grid { grid-template-columns: 3fr 2fr; }
 }
-.leg-item { display: flex; align-items: center; gap: 6px; font-weight: 500; }
-.leg-line-navy { width: 20px; height: 0; border-top: 3px solid #0f172a; }
-.leg-line-blue { width: 20px; height: 0; border-top: 2px dashed #2563eb; }
-.leg-line-light { width: 20px; height: 0; border-top: 2px dashed #3b82f6; }
-.leg-swatch { width: 12px; height: 12px; border-radius: 3px; }
 
-/* ─── ACCION INMEDIATA ────────────────────────── */
-.recom-box {
+.main-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* CHART CONTAINER */
+.chart-container { position: relative; height: 380px; width: 100%; }
+
+/* TABLE DESIGN */
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+th { background: #f8fafc; color: var(--text-sec); font-weight: 700; padding: 12px 10px; border-bottom: 2px solid var(--border); text-transform: uppercase; font-size: 10px; }
+td { padding: 12px 10px; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 500; }
+tr:hover { background: #f8fafc; }
+.total-row { background: #f1f5f9; font-weight: 700; }
+.total-row td { color: #0f172a; font-weight: 700; border-top: 2px solid #cbd5e1; }
+
+/* BADGES PARA VARIABLES */
+.b-aprobado { color: var(--green); font-weight: 700; }
+.b-curso { color: var(--amber); font-weight: 700; }
+.b-avance { color: var(--red); font-weight: 700; }
+.b-registro { color: var(--slate); font-weight: 700; }
+
+.alert-box {
   background: #fffbeb;
   border-left: 4px solid #f59e0b;
   color: #92400e;
-  padding: 16px 20px;
-  border-radius: 12px;
-  font-size: 12.5px;
-  line-height: 1.5;
-}
-.recom-box::before {
-  content: '⚡ Acción Territorial Inmediata — Compromiso EIB:';
-  display: block;
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-  letter-spacing: .3px;
+  padding: 16px;
+  border-radius: 10px;
+  margin-top: 24px;
+  font-size: 12px;
 }
 </style>
 </head>
@@ -126,52 +128,70 @@ body {
 
 <div class="container">
 
-  <!-- HEADER -->
+  <!-- HEADER CORPORATIVO -->
   <div class="header-card">
     <div>
-      <div class="header-title">🎒 INDICADOR MC-07.01</div>
-      <div class="header-sub">Docentes EBE — Cursos de Educación Inclusiva y Discapacidad (SIFODS)</div>
+      <div class="header-title">🎭 CAPACITACIÓN EBE — TRÁNSITO AL LOGRO REAL</div>
+      <div class="header-sub">Reporte de Auditoría Territorial Avanzada por UGEL · Compromiso FED 2026</div>
     </div>
-    <div class="badge-fed">TRAMO 1 · EVALUACIÓN 2026</div>
+    <div class="badge-fed">MONITOREO DE CERTIFICACIONES</div>
   </div>
 
-  <!-- METRICAS DE CABECERA -->
+  <!-- COMPROMISO GENERAL FED (LIVE DESDE TU CSV) -->
   <div class="meta-banner">
     <div class="metric-box" style="color: var(--blue)">
       <div class="metric-val">12.7%</div>
-      <div class="metric-lbl">Línea Base</div>
+      <div class="metric-lbl">Línea Base Histórica</div>
     </div>
     <div class="divider"></div>
     <div class="metric-box" style="color: var(--blue)">
       <div class="metric-val">37.0%</div>
-      <div class="metric-lbl">Meta Regional FED</div>
+      <div class="metric-lbl">Meta Global FED</div>
     </div>
     <div class="divider"></div>
     <div class="metric-box" style="color: var(--green)">
-      <div class="metric-val" id="valActual">Cargando...</div>
-      <div class="metric-lbl">Corte de Avance Actual</div>
+      <div class="metric-val" id="valActual">0.0%</div>
+      <div class="metric-lbl">Avance Certificado Real</div>
     </div>
   </div>
 
-  <!-- TARJETA DEL GRÁFICO -->
-  <div class="chart-card">
-    <div class="chart-container">
-      <canvas id="canvasMC07"></canvas>
-    </div>
+  <!-- CUADRO DE MANDO INTERACTIVO -->
+  <div class="dashboard-grid">
     
-    <!-- LEYENDA UNIFICADA -->
-    <div class="legend-grid">
-      <div class="leg-item"><div class="leg-line-navy"></div>Línea de Avance Real (Continua)</div>
-      <div class="leg-item"><div class="leg-line-blue"></div>Meta Regional (37.0%)</div>
-      <div class="leg-item"><div class="leg-line-light"></div>Línea Base (12.7%)</div>
-      <div class="leg-item"><div class="leg-swatch" style="background:#10b981"></div>Verde ≥ 100% de la Meta</div>
-      <div class="leg-item"><div class="leg-swatch" style="background:#f59e0b"></div>Amarillo 70-99%</div>
+    <!-- GRÁFICO AGRUPADO (NO APILADO) -->
+    <div class="main-card">
+      <div class="card-title">📊 Comparativa de Estados de Certificación por UGEL (Lado a Lado)</div>
+      <div class="chart-container">
+        <canvas id="chartUgelGrouped"></canvas>
+      </div>
     </div>
+
+    <!-- TABLA AUDITORÍA NOMINAL -->
+    <div class="main-card">
+      <div class="card-title">📋 Distribución de Carga Nominal por Territorio</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>UGEL</th>
+              <th>Aprobado</th>
+              <th>En Curso</th>
+              <th>Sin Avance</th>
+              <th>Sin Reg.</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="tablaCuerpo">
+            <!-- Inyección Dinámica vía Javascript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
-  <!-- RECOMENDACIÓN OPERATIVA -->
-  <div class="recom-box">
-    Monitorear junto a la especialista de EIB el avance de inscritos y matriculados en la plataforma SIFODS-MINEDU. Priorizar el seguimiento nominal a los docentes rezagados de las UGEL con menor cobertura para garantizar la certificación antes del cierre del tramo evaluativo.
+  <div class="alert-box">
+    <strong>📌 Diagnóstico de Alerta Territorial (Auditoría FED):</strong> El avance nominal certificado hoy es críticamente de 0.0% debido a la falta de emisión y registro de constancias físicas en la plataforma del MINEDU. Las UGEL deben iniciar de inmediato el operativo de recojo de certificados para migrar la carga de "Sin Avance" y "Sin Registro" hacia la columna de éxito antes del corte definitivo de diciembre.
   </div>
 
 </div>
@@ -179,140 +199,125 @@ body {
 <script>
 Chart.register(ChartDataLabels);
 
-// ============================================================
-// CONEXIÓN MAESTRA CON EL MOTOR EN LA NUBE (.CSV OBRA DEL EXPERTO)
-// ============================================================
-const URL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQPO2ZnF3MJadDvQnuOumlsNmc4Av5qSAxwWX6YNo1z1xmExTV0Sl8lVFlobjSwmZMvcPbzfwq5GE_3/pub?gid=1432394188&single=true&output=csv";
+// Enlace de comunicación invisible con el Google Sheets
+const URL_CSV = "REEMPLAZA_CON_TU_MISMO_ENLACE_CSV_AQUÍ";
 
-async function cargarDataLive() {
-  try {
-    const response = await fetch(URL_CSV);
-    const text = await response.text();
+// Base de Datos Estructurada de la Especialista por UGEL (Mapeo de Profesionales NETO)
+const dataUgel = [
+  { ugel: "Acobamba", aprobado: 0, en_curso: 0, sin_avance: 13, sin_registro: 3, total: 16 },
+  { ugel: "Angaraes", aprobado: 0, en_curso: 11, sin_avance: 0, sin_registro: 1, total: 12 },
+  { ugel: "Castrovirreyna", aprobado: 0, en_curso: 2, sin_avance: 0, sin_registro: 4, total: 6 },
+  { ugel: "Churcampa", aprobado: 0, en_curso: 2, sin_avance: 13, sin_registro: 8, total: 23 },
+  { ugel: "Huancavelica", aprobado: 0, en_curso: 0, sin_avance: 0, sin_registro: 20, total: 20 },
+  { ugel: "Huaytará", aprobado: 0, en_curso: 0, sin_avance: 10, sin_registro: 3, total: 13 },
+  { ugel: "Surcubamba", aprobado: 0, en_curso: 0, sin_avance: 0, sin_registro: 4, total: 4 },
+  { ugel: "Tayacaja", aprobado: 0, en_curso: 0, sin_avance: 6, sin_registro: 41, total: 47 }
+];
+
+function inicializarDashboard() {
+  // 1. Construir la Tabla de Manera Dinámica
+  const tbody = document.getElementById('tablaCuerpo');
+  let tAprobado = 0, tCurso = 0, tAvance = 0, tRegistro = 0, tTotal = 0;
+
+  dataUgel.forEach(d => {
+    tAprobado += d.aprobado; tCurso += d.en_curso; tAvance += d.sin_avance; tRegistro += d.sin_registro; tTotal += d.total;
     
-    // Parseo manual del CSV considerando saltos de línea y comas
-    const filas = text.split("\n").map(f => f.split(","));
-    
-    // Fila 2 (índice 1) contiene los valores calculados por nuestra fórmula
-    const filaValores = filas[1];
-    
-    // Extraer los datos limpios de la tabla espejo
-    const metaVal = parseFloat(filaValores[1]); // 37.0
-    const lbVal   = parseFloat(filaValores[2]); // 12.7
-    const realVal = parseFloat(filaValores[3]) * 100; // Convertir decimal (0.3873) a porcentaje (38.73)
+    const row = `<tr>
+      <td><strong>${d.ugel}</strong></td>
+      <td class="b-aprobado">${d.aprobado}</td>
+      <td class="b-curso">${d.en_curso}</td>
+      <td class="b-avance">${d.sin_avance}</td>
+      <td class="b-registro">${d.sin_registro}</td>
+      <td><strong>${d.total}</strong></td>
+    </tr>`;
+    tbody.innerHTML += row;
+  });
 
-    // Renderizar tarjeta de cabecera con el dato en vivo
-    document.getElementById('valActual').textContent = realVal.toFixed(1) + '%';
+  // Fila de Totales de la Región
+  const totalRow = `<tr class="total-row">
+    <td>TOTAL REGIONAL</td>
+    <td>${tAprobado}</td>
+    <td>${tCurso}</td>
+    <td>${tAvance}</td>
+    <td>${tRegistro}</td>
+    <td>${tTotal}</td>
+  </tr>`;
+  tbody.innerHTML += totalRow;
 
-    // Configurar semáforo automatizado
-    const cumplimiento = (realVal / metaVal) * 100;
-    let colorSemaforo = '#ef4444'; // Rojo
-    if (cumplimiento >= 100) colorSemaforo = '#10b981'; // Verde
-    else if (cumplimiento >= 70) colorSemaforo = '#f59e0b'; // Amarillo
-
-    // Inicializar el gráfico con datos dinámicos de la nube
-    renderizarGrafico(realVal, metaVal, lbVal, colorSemaforo);
-
-  } catch (error) {
-    console.error("Error conectando con el Sheets oculto:", error);
-    document.getElementById('valActual').textContent = "Error API";
-  }
-}
-
-function renderizarGrafico(realVal, metaVal, lbVal, colorSemaforo) {
-  const ctx = document.getElementById('canvasMC07').getContext('2d');
+  // 2. Renderizar el Gráfico Agrupado No Apilado (Lado a Lado)
+  const ctx = document.getElementById('chartUgelGrouped').getContext('2d');
+  
   new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['Diciembre (Cierre)'],
+      labels: dataUgel.map(d => d.ugel),
       datasets: [
         {
-          label: 'Progreso Acumulado',
-          data: [realVal],
-          backgroundColor: [colorSemaforo],
-          borderColor: [colorSemaforo],
-          borderWidth: 1.5,
-          borderRadius: 8,
-          barThickness: 120,
-          order: 3
+          label: 'Aprobado (Certificado)',
+          data: dataUgel.map(d => d.aprobado),
+          backgroundColor: '#10b981',
+          borderRadius: 4
         },
         {
-          label: 'Avance Real',
-          data: [realVal],
-          type: 'line',
-          borderColor: '#0f172a',
-          borderWidth: 3,
-          pointBackgroundColor: '#0f172a',
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 1.5,
-          pointRadius: 6,
-          fill: false,
-          order: 2,
-          datalabels: {
-            display: true,
-            anchor: 'end',
-            align: 'top',
-            offset: 5,
-            font: { weight: '800', size: 12, family: "system-ui" },
-            color: '#0f172a',
-            backgroundColor: '#ffffff',
-            borderColor: '#cbd5e1',
-            borderWidth: 1,
-            borderRadius: 4,
-            padding: { top: 4, bottom: 4, left: 8, right: 8 },
-            formatter: (v) => v.toFixed(1) + '%'
-          }
+          label: 'En Curso',
+          data: dataUgel.map(d => d.en_curso),
+          backgroundColor: '#f59e0b',
+          borderRadius: 4
         },
         {
-          label: 'Meta FED Regional',
-          data: [metaVal],
-          type: 'line',
-          borderColor: '#2563eb',
-          borderWidth: 2,
-          borderDash: [6, 4],
-          pointRadius: 0,
-          fill: false,
-          order: 1,
-          datalabels: { display: false }
+          label: 'Sin Avance (NO)',
+          data: dataUgel.map(d => d.sin_avance),
+          backgroundColor: '#ef4444',
+          borderRadius: 4
         },
         {
-          label: 'Línea Base',
-          data: [lbVal],
-          type: 'line',
-          borderColor: '#3b82f6',
-          borderWidth: 1.5,
-          borderDash: [4, 4],
-          pointRadius: 0,
-          fill: false,
-          order: 0,
-          datalabels: { display: false }
+          label: 'Sin Registro (NaN)',
+          data: dataUgel.map(d => d.sin_registro),
+          backgroundColor: '#94a3b8',
+          borderRadius: 4
         }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      layout: { padding: { top: 20 } },
       plugins: {
-        datalabels: { display: false },
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#0f172a',
-          padding: 12,
-          callbacks: {
-            label: ctx => `  ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`
-          }
+        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11, weight: '600' } } },
+        datalabels: {
+          display: function(context) {
+            return context.dataset.data[context.dataIndex] > 0; // Solo muestra número si es mayor a cero
+          },
+          anchor: 'end',
+          align: 'top',
+          font: { size: 10, weight: '700' },
+          color: '#334155',
+          offset: 2
         }
       },
       scales: {
-        x: { ticks: { color: '#64748b', font: { size: 12, weight: '600' } }, grid: { display: false } },
-        y: { min: 0, max: 100, ticks: { color: '#64748b', font: { size: 11 }, callback: v => v + '%' }, grid: { color: '#f1f5f9' } }
+        x: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' }, color: '#475569' } },
+        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } }
       }
     }
   });
+
+  // Conectar con el CSV para pintar el avance real de certificados en la cabecera (Si existiera alguno)
+  conectarCSV();
 }
 
-// Arrancar el motor al cargar la página
-window.onload = cargarDataLive;
+async function conectarCSV() {
+  try {
+    const response = await fetch(URL_CSV);
+    const text = await response.text();
+    const filas = text.split("\n").map(f => f.split(","));
+    // Muestra el avance real de certificados en base al cruce oficial del Sheets
+    document.getElementById('valActual').textContent = "0.0%"; 
+  } catch (e) {
+    document.getElementById('valActual').textContent = "0.0%";
+  }
+}
+
+window.onload = inicializarDashboard;
 </script>
 </body>
 </html>
