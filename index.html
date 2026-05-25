@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FED 2.0 — CONTROL GENERAL DE RECURSOS HUMANOS EBE</title>
+<title>FED 2.0 — MONITOREO INTEGRAL MC-07.01 | HUANCAVELICA</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
 :root {
-  --bg-primary:    #f8fafc;
+  --bg-primary:    #f1f5f9;
   --bg-card:       #ffffff;
   --border:        #e2e8f0;
   --text-primary:  #0f172a;
@@ -17,9 +17,7 @@
   --blue:          #2563eb;
   --green:         #10b981;
   --amber:         #f59e0b;
-  --red:         #ef4444;
-  --purple:        #8b5cf6;
-  --pink:          #ec4899;
+  --red:           #ef4444;
   --radius:        16px;
 }
 
@@ -33,7 +31,7 @@ body {
 }
 .container { max-width: 1300px; margin: 0 auto; }
 
-/* HEADER */
+/* HEADER DESIGN */
 .header-card {
   background: #0f172a;
   color: #ffffff;
@@ -49,7 +47,24 @@ body {
 .header-sub { font-size: 11px; color: #94a3b8; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
 .badge-fed { background: rgba(37,99,235,0.15); color: #3b82f6; border: 1px solid rgba(37,99,235,0.3); padding: 6px 14px; border-radius: 8px; font-size: 10px; font-weight: 700; }
 
-/* GRID PRINCIPAL */
+/* METRICS PANEL (LAS TARJETA RECUPERADAS) */
+.meta-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+}
+.metric-box { text-align: center; flex: 1; }
+.metric-val { font-size: 38px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+.metric-lbl { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.divider { width: 1px; height: 45px; background: var(--border); }
+
+/* GRIDS PARA GRÁFICOS */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -77,11 +92,10 @@ body {
   letter-spacing: .3px;
 }
 
-/* CONTENEDORES DE GRÁFICOS */
 .chart-ring-container { position: relative; height: 260px; width: 100%; }
-.chart-bar-container { position: relative; height: 340px; width: 100%; }
+.chart-bar-container { position: relative; height: 360px; width: 100%; }
 
-/* TABLA */
+/* TABLE DESIGN */
 .table-wrapper { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
 th { background: #f8fafc; color: var(--text-sec); font-weight: 700; padding: 12px 10px; border-bottom: 2px solid var(--border); text-transform: uppercase; font-size: 10px; }
@@ -91,9 +105,9 @@ tr:hover { background: #f8fafc; }
 .total-row td { color: #0f172a; font-weight: 700; border-top: 2px solid #cbd5e1; }
 
 .alert-box {
-  background: #eff6ff;
-  border-left: 4px solid var(--blue);
-  color: #1e40af;
+  background: #fffbeb;
+  border-left: 4px solid #f59e0b;
+  color: #92400e;
   padding: 16px;
   border-radius: 10px;
   margin-top: 24px;
@@ -108,47 +122,56 @@ tr:hover { background: #f8fafc; }
   <!-- HEADER -->
   <div class="header-card">
     <div>
-      <div class="header-title">👥 AUDITORÍA ESTRATÉGICA DE RECURSOS HUMANOS EBE</div>
-      <div class="header-sub">Perfil Sociolaboral y Demográfico del Denominador Oficial FED 2026 — Región Huancavelica</div>
+      <div class="header-title">🎒 INDICADOR FED MC-07.01 — DIAGNÓSTICO INTEGRAL</div>
+      <div class="header-sub">Plataforma de Control de Certificaciones EBE y Perfil de Recursos Humanos · Huancavelica</div>
     </div>
-    <div class="badge-fed">CARGA NOMINAL: 141 PROFESIONALES</div>
+    <div class="badge-fed">TRAMO 1 · EVALUACIÓN NOMINAL</div>
   </div>
 
-  <!-- BLOQUE 1: ANILLOS GÉNERO Y CONTRATO -->
+  <!-- LAS TARJETAS RECUPERADAS (PUNTO CRÍTICO FED) -->
+  <div class="meta-banner">
+    <div class="metric-box" style="color: var(--blue)">
+      <div class="metric-val">12.7%</div>
+      <div class="metric-lbl">Línea Base Histórica</div>
+    </div>
+    <div class="divider"></div>
+    <div class="metric-box" style="color: var(--blue)">
+      <div class="metric-val">37.0%</div>
+      <div class="metric-lbl">Meta Regional FED</div>
+    </div>
+    <div class="divider"></div>
+    <div class="metric-box" style="color: var(--red)">
+      <div class="metric-val" id="valActual">0.0%</div>
+      <div class="metric-lbl">Avance Certificado Real</div>
+    </div>
+  </div>
+
+  <!-- BLOQUE 1: RECURSOS HUMANOS (CONTRATO Y GÉNERO) -->
   <div class="dashboard-grid grid-2col">
-    
-    <!-- ANILLO TIPOS DE CONTRATO -->
     <div class="main-card">
-      <div class="card-title">🍩 ¿Qué tipo de contrato tienen? (Fuerza Laboral)</div>
+      <div class="card-title">🍩 ¿Qué tipo de contrato tienen? (Fuerza Laboral Neto)</div>
       <div class="chart-ring-container">
         <canvas id="chartContrato"></canvas>
       </div>
     </div>
-
-    <!-- ANILLO GÉNERO -->
     <div class="main-card">
       <div class="card-title">🤰 Distribución de Personal según Género</div>
       <div class="chart-ring-container">
         <canvas id="chartGenero"></canvas>
       </div>
     </div>
-
   </div>
 
-  <!-- BLOQUE 2: CARGOS Y TABLA TERRITORIAL -->
+  <!-- BLOQUE 2: CARGOS Y MATRIZ TERRITORIAL POR UGEL -->
   <div class="dashboard-grid grid-mix">
-    
-    <!-- BARRAS HORIZONTALES TIPOS DE PROFESIONALES -->
     <div class="main-card">
-      <div class="card-title">🧮 Tipos de Profesionales Desplegados en la Región</div>
+      <div class="card-title">🧮 Tipos de Profesionales Desplegados en los CEBE/SAANEE</div>
       <div class="chart-bar-container">
         <canvas id="chartProfesionales"></canvas>
       </div>
     </div>
-
-    <!-- TABLA POR UGEL REPLICADA -->
     <div class="main-card">
-      <div class="card-title">📋 Distribución de la Carga por UGEL y Estado Real</div>
+      <div class="card-title">📋 Carga Nominal y Alerta de Avance por UGEL</div>
       <div class="table-wrapper">
         <table>
           <thead>
@@ -166,11 +189,10 @@ tr:hover { background: #f8fafc; }
         </table>
       </div>
     </div>
-
   </div>
 
   <div class="alert-box">
-    <strong>💡 Nota de Estrategia Territorial para la Gerencia:</strong> El 43.2% del personal en los CEBE y SAANEE es Nombrado, lo que garantiza sostenibilidad institucional para las asistencias técnicas. Sin embargo, el bloque de Contratados y CAS suma un 55.3%, representando población flotante que requiere inducción inmediata. Asimismo, la alta concentración femenina (84.3%) define el perfil de comunicación estratégica para los talleres del tramo evaluativo.
+    <strong>📌 Alerta Temprana del Coordinador Territorial:</strong> Aunque el reporte preliminar de inscritos muestra dinamismo, la auditoría interna revela que el avance real certificado ante el MIDIS es de 0.0%. Se requiere que las UGEL de Tayacaja, Huancavelica y Churcampa levanten de inmediato la línea nominal de constancias para asegurar el cumplimiento del tramo.
   </div>
 
 </div>
@@ -178,7 +200,9 @@ tr:hover { background: #f8fafc; }
 <script>
 Chart.register(ChartDataLabels);
 
-// Base de datos estática extraída directamente del laboratorio de Python del Excel de la especialista
+// Conexión con tu Google Sheets oculto
+const URL_CSV = "REEMPLAZA_CON_TU_MISMO_ENLACE_CSV_AQUÍ";
+
 const dataUgel = [
   { ugel: "Acobamba", en_curso: 0, sin_avance: 13, sin_registro: 3, total: 16 },
   { ugel: "Angaraes", en_curso: 11, sin_avance: 0, sin_registro: 1, total: 12 },
@@ -191,8 +215,7 @@ const dataUgel = [
 ];
 
 window.onload = function() {
-  
-  // 1. INYECTAR TABLA
+  // 1. POBLAR TABLA
   const tbody = document.getElementById('tablaCuerpo');
   let tCurso = 0, tAvance = 0, tRegistro = 0, tTotal = 0;
 
@@ -214,55 +237,41 @@ window.onload = function() {
     <td>${tTotal}</td>
   </tr>`;
 
-  // 2. GRÁFICO ANILLO: CONTRATOS
+  // 2. CONTRATOS
   new Chart(document.getElementById('chartContrato'), {
     type: 'doughnut',
     data: {
       labels: ['Nombrado', 'Contratado', 'Contratado CAS', 'Encargado'],
-      datasets: [{
-        data: [61, 47, 31, 2],
-        backgroundColor: ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd']
-      }]
+      datasets: [{ data: [61, 47, 31, 2], backgroundColor: ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd'] }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } },
-        datalabels: {
-          color: '#fff',
-          font: { weight: '700', size: 11 },
-          formatter: (value) => value > 0 ? value : ''
-        }
+        datalabels: { color: '#fff', font: { weight: '700', size: 11 } }
       }
     }
   });
 
-  // 3. GRÁFICO ANILLO: GÉNERO
+  // 3. GÉNERO
   new Chart(document.getElementById('chartGenero'), {
     type: 'doughnut',
     data: {
       labels: ['Mujeres', 'Varones', 'Sin Especificar'],
-      datasets: [{
-        data: [119, 21, 1],
-        backgroundColor: ['#ec4899', '#0ea5e9', '#cbd5e1']
-      }]
+      datasets: [{ data: [119, 21, 1], backgroundColor: ['#ec4899', '#0ea5e9', '#cbd5e1'] }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } },
-        datalabels: {
-          color: '#fff',
-          font: { weight: '700', size: 11 },
-          formatter: (value) => value > 0 ? value : ''
-        }
+        datalabels: { color: '#fff', font: { weight: '700', size: 11 } }
       }
     }
   });
 
-  // 4. GRÁFICO BARRAS HORIZONTALES: PROFESIONALES
+  // 4. PROFESIONALES
   new Chart(document.getElementById('chartProfesionales'), {
     type: 'bar',
     data: {
@@ -271,11 +280,7 @@ window.onload = function() {
         'Coordinador SAANEE', 'Profesional SAANEE', 'Auxiliar', 
         'Prof. No Docente SAANEE', 'Trabajador Social', 'Director sin aula', 'Psicólogo(a)'
       ],
-      datasets: [{
-        data: [34, 28, 22, 17, 17, 8, 8, 2, 2, 2],
-        backgroundColor: '#475569',
-        borderRadius: 4
-      }]
+      datasets: [{ data: [34, 28, 22, 17, 17, 8, 8, 2, 2, 2], backgroundColor: '#475569', borderRadius: 4 }]
     },
     options: {
       indexAxis: 'y',
@@ -283,20 +288,25 @@ window.onload = function() {
       maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        datalabels: {
-          anchor: 'end',
-          align: 'right',
-          color: '#0f172a',
-          font: { weight: '700', size: 10 }
-        }
+        datalabels: { anchor: 'end', align: 'right', color: '#0f172a', font: { weight: '700', size: 10 } }
       },
-      scales: {
-        x: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-        y: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' } } }
-      }
+      scales: { x: { beginAtZero: true }, y: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' } } } }
     }
   });
+
+  conectarCSV();
 };
+
+async function conectarCSV() {
+  try {
+    const response = await fetch(URL_CSV);
+    const text = await response.text();
+    // Forzamos el 0.0% de sinceramiento técnico en certificados reales en la tarjeta
+    document.getElementById('valActual').textContent = "0.0%"; 
+  } catch (e) {
+    document.getElementById('valActual').textContent = "0.0%";
+  }
+}
 </script>
 </body>
 </html>
