@@ -301,12 +301,31 @@ async function conectarCSV() {
   try {
     const response = await fetch(URL_CSV);
     const text = await response.text();
-    // Forzamos el 0.0% de sinceramiento técnico en certificados reales en la tarjeta
-    document.getElementById('valActual').textContent = "0.0%"; 
+    
+    // El código secreto divide el texto del CSV por filas y comas
+    const filas = text.split("\n").map(f => f.split(","));
+    const filaValores = filas[1]; // Fila 2 con el motor analítico
+    
+    // Extraemos el número en crudo (0.3873) de la columna D (índice 3) y lo multiplicamos por 100
+    const realVal = parseFloat(filaValores[3]) * 100; 
+
+    // Sinceramiento técnico para la Gerencia:
+    // Si queremos mostrar el avance de MATRÍCULAS/INSCRITOS que da 38.7% de forma dinámica:
+    if (!isNaN(realVal)) {
+      document.getElementById('valActual').textContent = realVal.toFixed(1) + '%';
+      
+      // Ajustamos el color de la tarjeta según el avance dinámico del Sheets
+      const metricBox = document.getElementById('valActual').parentElement;
+      if (realVal >= 37.0) {
+        metricBox.style.color = "var(--green)";
+      } else if (realVal >= 25.0) {
+        metricBox.style.color = "var(--amber)";
+      } else {
+        metricBox.style.color = "var(--red)";
+      }
+    }
   } catch (e) {
+    console.error("Error en la conexión secreta:", e);
     document.getElementById('valActual').textContent = "0.0%";
   }
 }
-</script>
-</body>
-</html>
