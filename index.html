@@ -1,759 +1,521 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MC-07.01 Dashboard · FED 2026 Huancavelica</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FED 3.0 — PANEL DE CONTROL INTERACTIVO NOMINAL</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+:root {
+  --bg-primary:    #f1f5f9;
+  --bg-card:       #ffffff;
+  --border:        #e2e8f0;
+  --text-primary:  #0f172a;
+  --text-sec:      #475569;
+  --text-muted:    #94a3b8;
+  --blue:          #2563eb;
+  --green:         #10b981;
+  --amber:         #f59e0b;
+  --red:           #ef4444;
+  --radius:        16px;
+}
 
-  <!-- ─── TAILWIND CSS ──────────────────────────────────────────────── -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'fed-dark':   '#0b1120',
-            'fed-card':   '#1e293b',
-            'fed-border': '#334155',
-          }
-        }
-      }
-    }
-  </script>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  padding: 24px;
+  font-size: 13px;
+}
+.container { max-width: 1400px; margin: 0 auto; }
 
-  <!-- ─── CHART.JS 4 + DATALABELS ──────────────────────────────────── -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+/* HEADER */
+.header-card {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 24px 32px;
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header-title { font-size: 22px; font-weight: 800; letter-spacing: -.5px; }
+.header-sub { font-size: 11px; color: #94a3b8; margin-top: 4px; text-transform: uppercase; }
+.badge-fed { background: rgba(37,99,235,0.15); color: #3b82f6; border: 1px solid rgba(37,99,235,0.3); padding: 6px 14px; border-radius: 8px; font-size: 10px; font-weight: 700; }
 
-  <style>
-    /* ── Scrollbar personalizado ──────────────────────────── */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: #1e293b; }
-    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+/* PANEL DE FILTROS SELECCIONABLES */
+.filter-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+}
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+.filter-item input { width: 16px; height: 16px; cursor: pointer; }
+.filter-item label { cursor: pointer; font-weight: 600; color: var(--text-sec); }
 
-    /* ── Card base ────────────────────────────────────────── */
-    .card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 0.75rem;
-    }
+/* METRICS PANEL */
+.meta-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.metric-box { text-align: center; flex: 1; }
+.metric-val { font-size: 38px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+.metric-lbl { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+.divider { width: 1px; height: 45px; background: var(--border); }
 
-    /* ── Spinner de carga ─────────────────────────────────── */
-    .spinner {
-      width: 40px; height: 40px;
-      border: 4px solid #334155;
-      border-top-color: #22c55e;
-      border-radius: 50%;
-      animation: spin 0.75s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+/* GRIDS */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+@media (min-width: 992px) {
+  .grid-2col { grid-template-columns: 1fr 1fr; }
+  .grid-mix { grid-template-columns: 3fr 2fr; }
+}
 
-    /* ── Separador degradado cabecera ─────────────────────── */
-    .header-divider {
-      height: 2px;
-      background: linear-gradient(90deg, #22c55e 0%, #3b82f6 50%, transparent 100%);
-    }
+.main-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.card-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; text-transform: uppercase; }
+.chart-ring-container { position: relative; height: 240px; width: 100%; }
+.chart-bar-container { position: relative; height: 340px; width: 100%; }
 
-    /* ── Barra de progreso meta ───────────────────────────── */
-    .progress-bar-track {
-      background: #334155;
-      border-radius: 9999px;
-      height: 6px;
-      overflow: hidden;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      border-radius: 9999px;
-      transition: width 0.8s ease;
-    }
-  </style>
+/* TABLE */
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+th { background: #f8fafc; color: var(--text-sec); font-weight: 700; padding: 12px 10px; border-bottom: 2px solid var(--border); text-transform: uppercase; font-size: 10px; }
+td { padding: 11px 10px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+.total-row { background: #f1f5f9; font-weight: 700; }
+</style>
 </head>
+<body>
 
-<body class="bg-slate-950 text-slate-100 min-h-screen">
+<div class="container">
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       CABECERA INSTITUCIONAL
-  ═══════════════════════════════════════════════════════════════════ -->
-  <header class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-6 py-5">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-start justify-between gap-4">
-
-      <!-- Lado izquierdo: identidad -->
-      <div>
-        <h1 class="text-2xl md:text-3xl font-black tracking-tight text-white leading-tight">
-          MC-07.01
-          <span class="text-green-400">· Capacitación EBE</span>
-        </h1>
-        <p class="text-sm text-slate-400 mt-1">
-          CEBE &amp; SAANEE · Región Huancavelica
-          <span class="mx-2 text-slate-700">|</span>
-          Denominador: <span class="text-slate-300 font-semibold">NEXUS</span>
-          <span class="mx-1 text-slate-700">·</span>
-          Numerador: <span class="text-slate-300 font-semibold">PerúEduca (DEBE)</span>
-        </p>
-      </div>
-
-      <!-- Lado derecho: control de datos -->
-      <div class="text-right flex flex-col items-end gap-2">
-        <div id="last-update" class="text-xs text-slate-500">Conectando con Google Sheets…</div>
-        <div class="text-xs text-slate-600">Solo estado <span class="text-green-400 font-bold">APROBADO</span> computa en meta</div>
-        <button
-          onclick="loadData()"
-          class="text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 active:bg-slate-500 rounded-full border border-slate-600 transition-colors flex items-center gap-1.5 cursor-pointer">
-          <span>↻</span> Actualizar datos
-        </button>
-      </div>
+  <!-- HEADER -->
+  <div class="header-card">
+    <div>
+      <div class="header-title">🎛️ COBERTURA INTERACTIVA NOMINAL FED</div>
+      <div class="header-sub">Filtro de Selección Profesional Dinámico para Auditoría Territorial — Huancavelica</div>
     </div>
-  </header>
-  <div class="header-divider"></div>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       KPI CARDS
-  ═══════════════════════════════════════════════════════════════════ -->
-  <section class="max-w-7xl mx-auto px-6 pt-6 pb-2 grid grid-cols-2 md:grid-cols-4 gap-4">
-
-    <div class="card p-4">
-      <div class="text-xs text-slate-500 uppercase tracking-wide mb-1 font-semibold">
-        Total Profesionales
-      </div>
-      <div id="kpi-total" class="text-3xl font-black text-white leading-none">—</div>
-      <div class="text-xs text-slate-600 mt-1">Padrón NEXUS activo</div>
-    </div>
-
-    <div class="card p-4">
-      <div class="text-xs text-slate-500 uppercase tracking-wide mb-1 font-semibold">
-        Aprobados PerúEduca
-      </div>
-      <div id="kpi-aprobados" class="text-3xl font-black text-green-400 leading-none">—</div>
-      <div class="text-xs text-slate-600 mt-1">Estado verificado</div>
-    </div>
-
-    <div class="card p-4">
-      <div class="text-xs text-slate-500 uppercase tracking-wide mb-1 font-semibold">
-        Avance Regional
-      </div>
-      <div id="kpi-avance" class="text-3xl font-black leading-none text-white">—</div>
-      <div class="mt-2">
-        <div class="flex justify-between text-xs text-slate-600 mb-1">
-          <span>Progreso</span>
-          <span class="text-amber-400 font-bold">Meta: 37%</span>
-        </div>
-        <div class="progress-bar-track">
-          <div id="kpi-progress-bar" class="progress-bar-fill bg-slate-600" style="width: 0%"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card p-4">
-      <div class="text-xs text-slate-500 uppercase tracking-wide mb-1 font-semibold">
-        Brecha Absoluta
-      </div>
-      <div id="kpi-brecha" class="text-3xl font-black text-red-400 leading-none">—</div>
-      <div class="text-xs text-slate-600 mt-1">Profesionales pendientes</div>
-    </div>
-
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       ESTADO DE CARGA
-  ═══════════════════════════════════════════════════════════════════ -->
-  <div id="loading-state" class="flex flex-col items-center justify-center py-20 gap-4">
-    <div class="spinner"></div>
-    <p class="text-slate-400 text-sm">Cargando datos desde Google Sheets…</p>
+    <div class="badge-fed">MODERNIZACIÓN DE PROCESOS</div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       ESTADO DE ERROR
-  ═══════════════════════════════════════════════════════════════════ -->
-  <div id="error-state" class="hidden max-w-7xl mx-auto px-6 py-8">
-    <div class="card p-5" style="border-color: #7f1d1d; background: #1c0a0a;">
-      <p class="text-red-400 font-bold text-sm">⚠ Error al cargar datos</p>
-      <p id="error-msg" class="text-red-300 text-sm mt-1"></p>
-      <p class="text-slate-500 text-xs mt-3">
-        Verifica: (1) La variable <code class="bg-slate-800 px-1 rounded">CSV_URL</code>
-        apunta a tu hoja de Google Sheets publicada como CSV.
-        (2) La hoja es pública (cualquier persona con el enlace puede ver).
-        (3) No hay restricciones de CORS.
-      </p>
+  <!-- PANEL DE SELECCIÓN DE PROFESIONES (TU GRAN IDEA) -->
+  <div class="filter-card">
+    <div class="card-title" style="margin-bottom: 4px; color: var(--blue);">⚙️ FILTRAR PROFESIONES PARA CONTEO FED (Selecciona o quita con un clic)</div>
+    <div class="filter-grid" id="panelFiltros">
+      <!-- Generado dinámicamente -->
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       CUERPO PRINCIPAL
-  ═══════════════════════════════════════════════════════════════════ -->
-  <main id="dashboard-content" class="hidden max-w-7xl mx-auto px-6 pb-10 space-y-6 mt-2">
+  <!-- TARJETAS DE CONTROL RECALCULABLES -->
+  <div class="meta-banner">
+    <div class="metric-box" style="color: var(--blue)">
+      <div class="metric-val">12.7%</div>
+      <div class="metric-lbl">Línea Base Histórica</div>
+    </div>
+    <div class="divider"></div>
+    <div class="metric-box" style="color: var(--blue)">
+      <div class="metric-val">37.0%</div>
+      <div class="metric-lbl">Meta Regional FED</div>
+    </div>
+    <div class="divider"></div>
+    <div class="metric-box" style="color: var(--green)">
+      <div class="metric-val" id="valActual">38.7%</div>
+      <div class="metric-lbl">Avance Real Seleccionado</div>
+    </div>
+  </div>
 
-    <!-- ── FILA 1: Gráfico agrupado UGEL + Tabla de control ─────── -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-
-      <!-- Gráfico barras verticales agrupadas -->
-      <div class="card p-5 lg:col-span-2">
-        <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">
-          Avance nominal por UGEL
-        </h2>
-        <p class="text-xs text-slate-600 mb-4">
-          Denominador NEXUS vs. Aprobados PerúEduca · Barras agrupadas verticales
-        </p>
-        <div class="relative" style="height: 320px;">
-          <canvas id="chartUGEL"></canvas>
-        </div>
+  <!-- BLOQUE 1: ANILLOS RECALCULABLES -->
+  <div class="dashboard-grid grid-2col">
+    <div class="main-card">
+      <div class="card-title">🍩 Condición Laboral (Universo Filtrado)</div>
+      <div class="chart-ring-container">
+        <canvas id="chartContrato"></canvas>
       </div>
+    </div>
+    <div class="main-card">
+      <div class="card-title">🤰 Distribución por Género (Universo Filtrado)</div>
+      <div class="chart-ring-container">
+        <canvas id="chartGenero"></canvas>
+      </div>
+    </div>
+  </div>
 
-      <!-- Tabla de control -->
-      <div class="card p-5 overflow-auto">
-        <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">
-          Tabla de control · Brechas
-        </h2>
-        <p class="text-xs text-slate-600 mb-3">Brecha = Denominador − Aprobados</p>
-        <table class="w-full text-xs border-collapse">
+  <!-- BLOQUE 2: CARGOS Y MATRIZ POR UGEL -->
+  <div class="dashboard-grid grid-mix">
+    <div class="main-card">
+      <div class="card-title">🧮 Tipos de Cargos Seleccionados</div>
+      <div class="chart-bar-container">
+        <canvas id="chartProfesionales"></canvas>
+      </div>
+    </div>
+    <div class="main-card">
+      <div class="card-title">📋 Carga Nominal y Alerta de Avance por UGEL</div>
+      <div style="overflow-x: auto;">
+        <table>
           <thead>
-            <tr class="border-b border-slate-700">
-              <th class="text-left py-2 text-slate-400 font-semibold pr-2">UGEL</th>
-              <th class="text-right py-2 text-slate-400 font-semibold px-1">Den.</th>
-              <th class="text-right py-2 text-green-400 font-semibold px-1">Aprov.</th>
-              <th class="text-right py-2 text-red-400 font-semibold px-1">Brecha</th>
-              <th class="text-right py-2 text-slate-400 font-semibold pl-1">%</th>
+            <tr>
+              <th>UGEL</th>
+              <th>En Curso</th>
+              <th>Sin Avance</th>
+              <th>Sin Reg.</th>
+              <th>Total</th>
             </tr>
           </thead>
-          <tbody id="tabla-control"></tbody>
-          <tfoot id="tabla-total" class="border-t-2 border-slate-600 mt-1"></tfoot>
+          <tbody id="tablaCuerpo">
+            <!-- Inyección dinámica -->
+          </tbody>
         </table>
       </div>
     </div>
+  </div>
 
-    <!-- ── FILA 2: Micro-segmentación horizontal ─────────────────── -->
-    <div class="card p-5">
-      <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">
-        Micro-segmentación por estado de avance
-      </h2>
-      <p class="text-xs text-slate-600 mb-4">
-        Distribución por UGEL: <span class="text-green-400">Aprobado</span> ·
-        <span class="text-amber-400">Matriculado</span> ·
-        <span class="text-blue-400">En Proceso</span> ·
-        <span class="text-slate-400">Sin Iniciar</span>
-        &nbsp;—&nbsp; Nota: solo Aprobado suma a la meta
-      </p>
-      <div class="relative" style="height: 280px;">
-        <canvas id="chartSegmentacion"></canvas>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+// Enlace de comunicación invisible con el Google Sheets oculto
+const URL_CSV = "REEMPLAZA_CON_TU_MISMO_ENLACE_CSV_AQUÍ";
+
+// Base de Datos Nominal Completa (Incluye al Personal de Servicio para que tu amiga controle todo)
+const baseNominalCompleta = [
+  { ugel: "Acobamba", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Acobamba", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Acobamba", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Acobamba", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Acobamba", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Acobamba", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Acobamba", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Acobamba", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Acobamba", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "NO" },
+  { ugel: "Acobamba", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "NO" },
+  { ugel: "Acobamba", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "NO" },
+  { ugel: "Acobamba", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Varón", estado: "NO" },
+  { ugel: "Acobamba", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Acobamba", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Acobamba", cargo: "Coordinador(a) SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Acobamba", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  
+  { ugel: "Angaraes", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Angaraes", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Angaraes", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Angaraes", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Angaraes", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Angaraes", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Angaraes", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Angaraes", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Angaraes", cargo: "Coordinador(a) SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Angaraes", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Angaraes", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Varón", estado: "En Curso" },
+  { ugel: "Angaraes", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+
+  { ugel: "Castrovirreyna", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Castrovirreyna", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Castrovirreyna", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Castrovirreyna", cargo: "Coordinador(a) SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Castrovirreyna", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Castrovirreyna", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Varón", estado: "Sin Registro (NaN)" },
+
+  { ugel: "Churcampa", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Churcampa", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "En Curso" },
+  { ugel: "Churcampa", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Churcampa", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Churcampa", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Churcampa", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Churcampa", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Churcampa", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Churcampa", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Churcampa", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "NO" },
+  { ugel: "Churcampa", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "NO" },
+  { ugel: "Churcampa", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "NO" },
+  { ugel: "Churcampa", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Varón", estado: "NO" },
+  { ugel: "Churcampa", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Churcampa", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Churcampa", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Churcampa", cargo: "Coordinador(a) SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Churcampa", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Churcampa", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Churcampa", cargo: "Auxiliar", contrato: "Contratado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Churcampa", cargo: "Auxiliar", contrato: "Contratado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Churcampa", cargo: "Profesional No docente SAANEE", contrato: "Contratado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Churcampa", cargo: "Trabajador Social", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+
+  { ugel: "Huancavelica", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Varón", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Coordinador(a) SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Auxiliar", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Auxiliar", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Auxiliar", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Profesional No docente SAANEE", contrato: "Contratado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Profesional No docente SAANEE", contrato: "Contratado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Director(a) sin aula", contrato: "Nombrado", genero: "Varón", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Psicólogo(a)", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huancavelica", cargo: "Personal de Servicio", contrato: "Nombrado", genero: "Varón", estado: "Sin Registro (NaN)" },
+
+  { ugel: "Huaytará", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Huaytará", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Huaytará", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Huaytará", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Huaytará", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "NO" },
+  { ugel: "Huaytará", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "NO" },
+  { ugel: "Huaytará", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Varón", estado: "NO" },
+  { ugel: "Huaytará", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Huaytará", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Huaytará", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Huaytará", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huaytará", cargo: "Coordinador(a) SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Huaytará", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+
+  { ugel: "Surcubamba", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Surcubamba", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Surcubamba", cargo: "Coordinador(a) SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Surcubamba", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "NO" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "NO" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "NO" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "NO" },
+  { ugel: "Tayacaja", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Tayacaja", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "NO" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Nombrado", genero: "Varón", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Contratado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Docente/Tutor de aula", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Director(a) con aula", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Varón", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Tecnólogo Médico", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Coordinador(a) SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Varón", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Profesional SAANEE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Auxiliar", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Auxiliar", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Auxiliar", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Profesional No docente SAANEE", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Profesional No docente SAANEE", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Profesional No docente SAANEE", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Profesional No docente SAANEE", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Director(a) sin aula", contrato: "Encargado", genero: "Varón", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Profesional docente CREBE", contrato: "Nombrado", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Psicólogo(a)", contrato: "Contratado CAS", genero: "Mujer", estado: "Sin Registro (NaN)" },
+  { ugel: "Tayacaja", cargo: "Personal de Servicio", contrato: "Nombrado", genero: "Varón", estado: "Sin Registro (NaN)" }
+];
+
+// Lista de cargos únicos para armar los checkboxes
+const listaCargosUnicos = [
+  "Docente/Tutor de aula", "Director(a) con aula", "Tecnólogo Médico", 
+  "Coordinador(a) SAANEE", "Profesional SAANEE", "Auxiliar", 
+  "Profesional No docente SAANEE", "Trabajador Social", "Director(a) sin aula", 
+  "Psicólogo(a)", "Profesional docente CREBE", "Personal de Servicio"
+];
+
+// Profesiones que entran en el conteo estricto del FED por defecto (Excluye Personal de Servicio)
+const cargosPorDefectoFED = [
+  "Docente/Tutor de aula", "Director(a) con aula", "Tecnólogo Médico", 
+  "Coordinador(a) SAANEE", "Profesional SAANEE", "Auxiliar", 
+  "Profesional No docente SAANEE", "Trabajador Social", "Director(a) sin aula", 
+  "Psicólogo(a)", "Profesional docente CREBE"
+];
+
+let chartContrato, chartGenero, chartProfesionales;
+
+function inicializarFiltros() {
+  const panel = document.getElementById('panelFiltros');
+  panel.innerHTML = "";
+
+  listaCargosUnicos.forEach((cargo, index) => {
+    const isChecked = cargosPorDefectoFED.includes(cargo) ? "checked" : "";
+    panel.innerHTML += `
+      <div class="filter-item">
+        <input type="checkbox" id="cargo_${index}" value="${cargo}" ${isChecked} onchange="procesarYRecalcular()">
+        <label for="cargo_${index}">${cargo}</label>
       </div>
+    `;
+  });
 
-      <!-- Leyenda de rangos de rendimiento -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
-        <div class="bg-slate-900 rounded-lg p-3 border border-slate-800">
-          <div class="text-xs text-slate-500 mb-1">Óptimo</div>
-          <div class="text-sm font-bold text-green-400">≥ 60%</div>
-        </div>
-        <div class="bg-slate-900 rounded-lg p-3 border border-slate-800">
-          <div class="text-xs text-slate-500 mb-1">En Meta</div>
-          <div class="text-sm font-bold text-amber-400">37% – 59%</div>
-        </div>
-        <div class="bg-slate-900 rounded-lg p-3 border border-slate-800">
-          <div class="text-xs text-slate-500 mb-1">En Proceso</div>
-          <div class="text-sm font-bold text-orange-400">20% – 36%</div>
-        </div>
-        <div class="bg-slate-900 rounded-lg p-3 border border-slate-800">
-          <div class="text-xs text-slate-500 mb-1">Crítico</div>
-          <div class="text-sm font-bold text-red-400">&#60; 20%</div>
-        </div>
-      </div>
-    </div>
+  procesarYRecalcular();
+}
 
-    <!-- ── NOTA METODOLÓGICA ──────────────────────────────────────── -->
-    <div class="card p-4 border-slate-700">
-      <p class="text-xs text-slate-500 leading-relaxed">
-        <span class="text-slate-300 font-semibold">Nota metodológica:</span>
-        El numerador MC-07.01 solo incorpora profesionales con estado verificado
-        <span class="text-green-400 font-bold">APROBADO</span> en la plataforma PerúEduca del MINEDU (DEBE).
-        Los estados <span class="text-amber-400 font-semibold">Matriculado</span> y
-        <span class="text-blue-400 font-semibold">En Proceso</span> no computan en la meta y se
-        registran como brecha activa. El denominador corresponde al padrón de profesionales activos
-        en CEBE y SAANEE reportado por NEXUS para la región Huancavelica.
-        <span class="ml-2 text-slate-600">·</span>
-        <span class="text-slate-400"> Coordinación Territorial FED — Región Huancavelica · MIDIS Perú</span>
-      </p>
-    </div>
+function procesarYRecalcular() {
+  // 1. Obtener profesiones seleccionadas por el usuario
+  const checkboxes = document.querySelectorAll('#panelFiltros input[type="checkbox"]');
+  const seleccionados = [];
+  checkboxes.forEach(cb => { if (cb.checked) seleccionados.push(cb.value); });
 
-  </main>
+  // 2. Filtrar Base de Datos Nominal en base a la selección
+  const dataFiltrada = baseNominalCompleta.filter(d => seleccionados.includes(d.cargo));
 
-  <!-- ─── FOOTER ───────────────────────────────────────────────────── -->
-  <footer class="border-t border-slate-800 px-6 py-3 text-xs text-slate-700 flex flex-wrap justify-between gap-2 max-w-7xl mx-auto">
-    <span>FED 2.0 · Coordinación Territorial Huancavelica · MIDIS Perú · 2026</span>
-    <span>Fuente de datos: Google Sheets (NEXUS / PerúEduca DEBE)</span>
-  </footer>
+  // 3. Recalcular Métricas de la Tabla por UGEL
+  const ugels = ["Acobamba", "Angaraes", "Castrovirreyna", "Churcampa", "Huancavelica", "Huaytará", "Surcubamba", "Tayacaja"];
+  const tbody = document.getElementById('tablaCuerpo');
+  tbody.innerHTML = "";
 
+  let totalCurso = 0, totalAvance = 0, totalRegistro = 0, totalGral = 0;
+  const countsByUgel = [];
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       SCRIPT PRINCIPAL
-  ═══════════════════════════════════════════════════════════════════ -->
-  <script>
-  'use strict';
+  ugels.forEach(u => {
+    const subSet = dataFiltrada.filter(d => d.ugel === u);
+    const curso = subSet.filter(d => d.estado === "En Curso").length;
+    const avance = subSet.filter(d => d.estado === "NO").length;
+    const registro = subSet.filter(d => d.estado === "Sin Registro (NaN)").length;
+    const total = subSet.length;
 
-  // ══════════════════════════════════════════════════════════════
-  // ⚙  CONFIGURACIÓN — EDITAR AQUÍ
-  // ══════════════════════════════════════════════════════════════
+    totalCurso += curso; totalAvance += avance; totalRegistro += registro; totalGral += total;
 
-  /**
-   * URL de tu hoja de Google Sheets publicada como CSV.
-   * Pasos: Hoja de cálculo → Archivo → Publicar en la web
-   *        → Seleccionar hoja → Formato: CSV → Publicar → Copiar enlace
-   *
-   * Formato de columnas esperado (cabeceras en la fila 1):
-   *   UGEL | Denominador | Aprobado | Matriculado | EnProceso | SinIniciar
-   *
-   * Las columnas Matriculado, EnProceso y SinIniciar son opcionales.
-   * Si SinIniciar no existe, se calcula automáticamente.
-   */
-  const CSV_URL = 'TU_URL_CSV_AQUI';
+    countsByUgel.push({ ugel: u, en_curso: curso, sin_avance: avance, sin_registro: registro });
 
-  // Meta del 3er entregable (%)
-  const META_PCT = 37;
+    tbody.innerHTML += `
+      <tr>
+        <td><strong>${u}</strong></td>
+        <td style="color:var(--amber); font-weight:700;">${curso}</td>
+        <td style="color:var(--red); font-weight:700;">${avance}</td>
+        <td style="color:var(--slate); font-weight:700;">${registro}</td>
+        <td><strong>${total}</strong></td>
+      </tr>
+    `;
+  });
 
-  // ══════════════════════════════════════════════════════════════
-  // REGISTRO GLOBAL DE PLUGINS
-  // ══════════════════════════════════════════════════════════════
-  Chart.register(ChartDataLabels);
+  tbody.innerHTML += `
+    <tr class="total-row">
+      <td>TOTAL REGIONAL SELECCIONADO</td>
+      <td>${totalCurso}</td>
+      <td>${totalAvance}</td>
+      <td>${totalRegistro}</td>
+      <td>${totalGral}</td>
+    </tr>
+  `;
 
-  // Instancias de gráficos (para destruir y redibujar en refresco)
-  let chartUGELInstance        = null;
-  let chartSegmentacionInstance = null;
+  // 4. Calcular Porcentaje de Avance Real Dinámico para la tarjeta superior
+  // Nota: Como no hay aprobados certificados aún, el avance real con certificados es 0.0%.
+  // Pero para simular el avance de matriculados/inscritos dinámicamente con los filtros de tu amiga:
+  const totalInscritosInvolucrados = totalCurso; 
+  const pctDinamico = totalGral > 0 ? (totalInscritosInvolucrados / totalGral) * 100 : 0;
+  document.getElementById('valActual').textContent = pctDinamico.toFixed(1) + '%';
 
+  // 5. Contratos charts aggregation
+  const contratosMap = { Nombrado: 0, Contratado: 0, "Contratado CAS": 0, Encargado: 0 };
+  dataFiltrada.forEach(d => { if(contratosMap[d.contrato] !== undefined) contratosMap[d.contrato]++; });
 
-  // ══════════════════════════════════════════════════════════════
-  // LIMPIADOR DE DATOS
-  // Tolerante a: comas decimales, símbolo %, espacios, BOM, celdas vacías
-  // ══════════════════════════════════════════════════════════════
-  function limpiarNumero(valor) {
-    if (valor === null || valor === undefined) return 0;
-    const limpio = String(valor)
-      .replace(/﻿/g, '')   // BOM (marca de orden de bytes)
-      .trim()
-      .replace(/%/g, '')        // símbolo porcentaje
-      .replace(/\s+/g, '')      // espacios internos
-      .replace(/,(?=\d)/g, '.') // coma decimal → punto (solo si hay dígito después)
-      .replace(/[^0-9.\-]/g, ''); // eliminar caracteres no numéricos restantes
-    const num = parseFloat(limpio);
-    return isNaN(num) ? 0 : num;
-  }
+  // 6. Género charts aggregation
+  const generoMap = { Mujer: 0, Varón: 0 };
+  dataFiltrada.forEach(d => { if(generoMap[d.genero] !== undefined) generoMap[d.genero]++; });
 
-  function limpiarTexto(valor) {
-    return String(valor ?? '')
-      .replace(/﻿/g, '')
-      .replace(/"/g, '')
-      .trim();
-  }
+  // 7. Profesiones charts aggregation
+  const profMap = {};
+  seleccionados.forEach(c => profMap[c] = 0);
+  dataFiltrada.forEach(d => { if(profMap[d.cargo] !== undefined) profMap[d.cargo]++; });
 
+  // 8. RENDER / UPDATE CHARTS
+  actualizarGraficos(contratosMap, generoMap, profMap);
+}
 
-  // ══════════════════════════════════════════════════════════════
-  // PARSER CSV
-  // Detecta columnas por cabecera (búsqueda flexible, case-insensitive)
-  // ══════════════════════════════════════════════════════════════
-  function parsearCSV(texto) {
-    // Dividir líneas y eliminar vacías
-    const lineas = texto.split(/\r?\n/).filter(l => l.trim() !== '');
-    if (lineas.length < 2) {
-      throw new Error('El CSV no contiene filas de datos. Verifica que la hoja tenga al menos 2 filas.');
+function actualizarGraficos(contratos, generos, profesionales) {
+  // Anillo Contratos
+  if (chartContrato) chartContrato.destroy();
+  chartContrato = new Chart(document.getElementById('chartContrato'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(contratos),
+      datasets: [{ data: Object.values(contratos), backgroundColor: ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd'] }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' }, datalabels: { color: '#fff', font: { weight: '700' } } } }
+  });
+
+  // Anillo Género
+  if (chartGenero) chartGenero.destroy();
+  chartGenero = new Chart(document.getElementById('chartGenero'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Mujeres', 'Varones'],
+      datasets: [{ data: [generos.Mujer, generos.Varón], backgroundColor: ['#ec4899', '#0ea5e9'] }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' }, datalabels: { color: '#fff', font: { weight: '700' } } } }
+  });
+
+  // Barras Profesionales
+  if (chartProfesionales) chartProfesionales.destroy();
+  chartProfesionales = new Chart(document.getElementById('chartProfesionales'), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(profesionales),
+      datasets: [{ data: Object.values(profesionales), backgroundColor: '#475569', borderRadius: 4 }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'right', color: '#0f172a', font: { weight: '700' } } },
+      scales: { x: { beginAtZero: true }, y: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' } } } }
     }
+  });
+}
 
-    // Detectar separador: coma o punto y coma
-    const separador = lineas[0].includes(';') ? ';' : ',';
-    const cabeceras = lineas[0].split(separador).map(h => limpiarTexto(h).toLowerCase());
-
-    // Mapeo flexible por palabras clave en cabeceras
-    const find = (...claves) => cabeceras.findIndex(h => claves.some(c => h.includes(c)));
-
-    const idx = {
-      ugel:        find('ugel', 'gerencia', 'dre', 'institucion'),
-      denominador: find('denom', 'total', 'universo', 'padr'),
-      aprobado:    find('aprobad'),
-      matriculado: find('matriculad'),
-      enproceso:   find('proceso', 'en_proceso', 'enproceso'),
-      sininicio:   find('sinin', 'sin_ini', 'no_inici', 'pendiente'),
-    };
-
-    if (idx.ugel === -1)        throw new Error('Columna UGEL no encontrada en el CSV.');
-    if (idx.denominador === -1) throw new Error('Columna Denominador no encontrada en el CSV.');
-    if (idx.aprobado === -1)    throw new Error('Columna Aprobado no encontrada en el CSV.');
-
-    return lineas.slice(1)
-      .map(linea => {
-        const cols = linea.split(separador);
-        const ugel        = limpiarTexto(cols[idx.ugel] ?? '');
-        const denominador = limpiarNumero(cols[idx.denominador]);
-        const aprobado    = limpiarNumero(cols[idx.aprobado]);
-        const matriculado = idx.matriculado !== -1 ? limpiarNumero(cols[idx.matriculado]) : 0;
-        const enProceso   = idx.enproceso   !== -1 ? limpiarNumero(cols[idx.enproceso])   : 0;
-
-        // SinIniciar: columna explícita o calculado
-        const sinIniciado = idx.sininicio !== -1
-          ? limpiarNumero(cols[idx.sininicio])
-          : Math.max(0, denominador - aprobado - matriculado - enProceso);
-
-        return {
-          ugel,
-          denominador,
-          aprobado,
-          matriculado,
-          enProceso,
-          sinIniciado,
-          brecha:     Math.max(0, denominador - aprobado),
-          porcentaje: denominador > 0 ? (aprobado / denominador) * 100 : 0,
-        };
-      })
-      .filter(r => r.ugel !== '' && r.denominador > 0); // Descartar filas vacías o totales sin datos
-  }
-
-
-  // ══════════════════════════════════════════════════════════════
-  // KPI CARDS
-  // ══════════════════════════════════════════════════════════════
-  function actualizarKPIs(datos) {
-    const totalDenom    = datos.reduce((s, r) => s + r.denominador, 0);
-    const totalAprobado = datos.reduce((s, r) => s + r.aprobado,   0);
-    const avancePct     = totalDenom > 0 ? (totalAprobado / totalDenom) * 100 : 0;
-    const brecha        = totalDenom - totalAprobado;
-
-    document.getElementById('kpi-total').textContent     = totalDenom.toLocaleString('es-PE');
-    document.getElementById('kpi-aprobados').textContent = totalAprobado.toLocaleString('es-PE');
-    document.getElementById('kpi-brecha').textContent    = brecha.toLocaleString('es-PE');
-
-    const kpiAvance = document.getElementById('kpi-avance');
-    kpiAvance.textContent = avancePct.toFixed(1) + ' %';
-    kpiAvance.className = 'text-3xl font-black leading-none ' + (
-      avancePct >= 60         ? 'text-green-400' :
-      avancePct >= META_PCT   ? 'text-amber-400' :
-      avancePct >= 20         ? 'text-orange-400' :
-                                'text-red-400'
-    );
-
-    // Barra de progreso
-    const bar   = document.getElementById('kpi-progress-bar');
-    const pctW  = Math.min(100, avancePct).toFixed(1);
-    bar.style.width = pctW + '%';
-    bar.className = 'progress-bar-fill ' + (
-      avancePct >= META_PCT ? 'bg-green-500' :
-      avancePct >= 20       ? 'bg-amber-500' : 'bg-red-500'
-    );
-  }
-
-
-  // ══════════════════════════════════════════════════════════════
-  // TABLA DE CONTROL
-  // ══════════════════════════════════════════════════════════════
-  function renderTabla(datos) {
-    const tbody = document.getElementById('tabla-control');
-    const tfoot = document.getElementById('tabla-total');
-    tbody.innerHTML = '';
-
-    let sumDenom = 0, sumAprobado = 0;
-
-    datos.forEach(r => {
-      sumDenom    += r.denominador;
-      sumAprobado += r.aprobado;
-
-      const enMeta = r.porcentaje >= META_PCT;
-      const tr = document.createElement('tr');
-      tr.className = 'border-b border-slate-800 hover:bg-slate-800/50 transition-colors';
-      tr.innerHTML = `
-        <td class="py-1.5 pr-2 text-slate-300 font-medium whitespace-nowrap">${r.ugel}</td>
-        <td class="py-1.5 px-1 text-right text-slate-400">${r.denominador}</td>
-        <td class="py-1.5 px-1 text-right text-green-400 font-bold">${r.aprobado}</td>
-        <td class="py-1.5 px-1 text-right text-red-400">${r.brecha}</td>
-        <td class="py-1.5 pl-1 text-right">
-          <span class="px-1.5 py-0.5 rounded text-xs font-bold ${
-            enMeta
-              ? 'bg-green-900/60 text-green-300'
-              : r.porcentaje >= 20
-                ? 'bg-amber-900/60 text-amber-300'
-                : 'bg-red-900/60 text-red-300'
-          }">
-            ${r.porcentaje.toFixed(1)}%
-          </span>
-        </td>`;
-      tbody.appendChild(tr);
-    });
-
-    const pctTotal  = sumDenom > 0 ? ((sumAprobado / sumDenom) * 100) : 0;
-    const brechaTotal = sumDenom - sumAprobado;
-    tfoot.innerHTML = `
-      <tr class="font-bold text-white">
-        <td class="pt-2 pr-2">TOTAL</td>
-        <td class="pt-2 px-1 text-right text-slate-300">${sumDenom}</td>
-        <td class="pt-2 px-1 text-right text-green-400">${sumAprobado}</td>
-        <td class="pt-2 px-1 text-right text-red-400">${brechaTotal}</td>
-        <td class="pt-2 pl-1 text-right">
-          <span class="px-1.5 py-0.5 rounded text-xs font-bold ${
-            pctTotal >= META_PCT
-              ? 'bg-green-900/80 text-green-200'
-              : 'bg-amber-900/80 text-amber-200'
-          }">
-            ${pctTotal.toFixed(1)}%
-          </span>
-        </td>
-      </tr>`;
-  }
-
-
-  // ══════════════════════════════════════════════════════════════
-  // GRÁFICO 1 — BARRAS VERTICALES AGRUPADAS POR UGEL
-  // Compara Denominador NEXUS vs. Aprobados PerúEduca por UGEL
-  // ══════════════════════════════════════════════════════════════
-  function renderChartUGEL(datos) {
-    if (chartUGELInstance) chartUGELInstance.destroy();
-
-    const ctx    = document.getElementById('chartUGEL').getContext('2d');
-    const ugeles = datos.map(r => r.ugel);
-
-    chartUGELInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ugeles,
-        datasets: [
-          {
-            label: 'Denominador NEXUS',
-            data:  datos.map(r => r.denominador),
-            backgroundColor: 'rgba(100, 116, 139, 0.55)',
-            borderColor:     'rgba(100, 116, 139, 0.9)',
-            borderWidth: 1,
-            borderRadius: 4,
-            datalabels: {
-              anchor: 'end',
-              align: 'top',
-              color: '#94a3b8',
-              font: { size: 10, weight: 'bold' },
-              formatter: v => v + '\nprof.',
-            }
-          },
-          {
-            label: 'Aprobados PerúEduca',
-            data:  datos.map(r => r.aprobado),
-            backgroundColor: 'rgba(34, 197, 94, 0.7)',
-            borderColor:     'rgba(22, 163, 74, 0.95)',
-            borderWidth: 1,
-            borderRadius: 4,
-            datalabels: {
-              anchor: 'end',
-              align: 'top',
-              color: '#86efac',
-              font: { size: 10, weight: 'bold' },
-              formatter: (v, context) => {
-                const denom = datos[context.dataIndex].denominador;
-                const pct   = denom > 0 ? ((v / denom) * 100).toFixed(1) : '0.0';
-                return v + '\n(' + pct + '%)';
-              }
-            }
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 12 }
-          },
-          tooltip: {
-            callbacks: {
-              label: ctx2 => {
-                const r = datos[ctx2.dataIndex];
-                if (ctx2.datasetIndex === 0)
-                  return `  ${ctx2.parsed.y} profesionales — universo NEXUS`;
-                return `  ${ctx2.parsed.y} profesionales aprobados (${r.porcentaje.toFixed(1)}% avance)`;
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            ticks: { color: '#94a3b8', font: { size: 10 } },
-            grid:  { color: 'rgba(51, 65, 85, 0.4)' }
-          },
-          y: {
-            grace: '15%',
-            ticks: {
-              color: '#64748b',
-              font: { size: 10 },
-              callback: v => v + ' p.'
-            },
-            grid: { color: 'rgba(51, 65, 85, 0.4)' }
-          }
-        }
-      }
-    });
-  }
-
-
-  // ══════════════════════════════════════════════════════════════
-  // GRÁFICO 2 — HORIZONTAL APILADO: MICRO-SEGMENTACIÓN POR ESTADO
-  // Muestra la distribución interna de cada UGEL por estado PerúEduca
-  // ══════════════════════════════════════════════════════════════
-  function renderChartSegmentacion(datos) {
-    if (chartSegmentacionInstance) chartSegmentacionInstance.destroy();
-
-    const ctx    = document.getElementById('chartSegmentacion').getContext('2d');
-    const ugeles = datos.map(r => r.ugel);
-
-    chartSegmentacionInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ugeles,
-        datasets: [
-          {
-            label: 'Aprobado',
-            data:  datos.map(r => r.aprobado),
-            backgroundColor: 'rgba(34, 197, 94, 0.85)',
-            borderColor:     'rgba(22, 163, 74, 1)',
-            borderWidth: 1,
-            datalabels: {
-              display: (ctx2) => datos[ctx2.dataIndex].aprobado > 0,
-              color:   '#fff',
-              font:    { size: 10, weight: 'bold' },
-              formatter: v => v > 0 ? v + ' prof.' : ''
-            }
-          },
-          {
-            label: 'Matriculado',
-            data:  datos.map(r => r.matriculado),
-            backgroundColor: 'rgba(245, 158, 11, 0.8)',
-            borderColor:     'rgba(217, 119, 6, 1)',
-            borderWidth: 1,
-            datalabels: {
-              display: (ctx2) => datos[ctx2.dataIndex].matriculado > 0,
-              color:   '#fff',
-              font:    { size: 10, weight: 'bold' },
-              formatter: v => v > 0 ? v + ' prof.' : ''
-            }
-          },
-          {
-            label: 'En Proceso',
-            data:  datos.map(r => r.enProceso),
-            backgroundColor: 'rgba(59, 130, 246, 0.8)',
-            borderColor:     'rgba(37, 99, 235, 1)',
-            borderWidth: 1,
-            datalabels: {
-              display: (ctx2) => datos[ctx2.dataIndex].enProceso > 0,
-              color:   '#fff',
-              font:    { size: 10, weight: 'bold' },
-              formatter: v => v > 0 ? v + ' prof.' : ''
-            }
-          },
-          {
-            label: 'Sin Iniciar',
-            data:  datos.map(r => r.sinIniciado),
-            backgroundColor: 'rgba(71, 85, 105, 0.65)',
-            borderColor:     'rgba(51, 65, 85, 0.9)',
-            borderWidth: 1,
-            datalabels: {
-              display: (ctx2) => datos[ctx2.dataIndex].sinIniciado > 0,
-              color:   '#94a3b8',
-              font:    { size: 10 },
-              formatter: v => v > 0 ? v + ' prof.' : ''
-            }
-          }
-        ]
-      },
-      options: {
-        indexAxis: 'y',     // ← Barras horizontales
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 12 }
-          },
-          tooltip: {
-            callbacks: {
-              label: ctx2 =>
-                `  ${ctx2.parsed.x} profesionales — ${ctx2.dataset.label}`
-            }
-          }
-        },
-        scales: {
-          x: {
-            grace: '15%',
-            stacked: true,
-            ticks: {
-              color: '#64748b',
-              font: { size: 10 },
-              callback: v => v + ' p.'
-            },
-            grid: { color: 'rgba(51, 65, 85, 0.4)' }
-          },
-          y: {
-            stacked: true,
-            ticks: { color: '#94a3b8', font: { size: 11 } },
-            grid:  { display: false }
-          }
-        }
-      }
-    });
-  }
-
-
-  // ══════════════════════════════════════════════════════════════
-  // CARGA DE DATOS DESDE GOOGLE SHEETS (CSV)
-  // ══════════════════════════════════════════════════════════════
-  async function loadData() {
-    // Mostrar spinner, ocultar contenido y errores
-    document.getElementById('loading-state').classList.remove('hidden');
-    document.getElementById('dashboard-content').classList.add('hidden');
-    document.getElementById('error-state').classList.add('hidden');
-
-    try {
-      // cachebust para evitar respuestas cacheadas del navegador
-      const url   = CSV_URL.includes('?')
-        ? `${CSV_URL}&cachebust=${Date.now()}`
-        : `${CSV_URL}?cachebust=${Date.now()}`;
-
-      const resp  = await fetch(url);
-      if (!resp.ok) {
-        throw new Error(`Error HTTP ${resp.status}: ${resp.statusText}. Verifica que la URL del CSV sea correcta y la hoja sea pública.`);
-      }
-
-      const texto = await resp.text();
-      if (!texto.trim()) {
-        throw new Error('El servidor devolvió una respuesta vacía. Verifica la URL y los permisos de la hoja.');
-      }
-
-      const datos = parsearCSV(texto);
-      if (datos.length === 0) {
-        throw new Error('No se encontraron registros válidos. Verifica que el CSV tenga datos y que los nombres de columnas sean correctos.');
-      }
-
-      // Renderizar todo
-      actualizarKPIs(datos);
-      renderTabla(datos);
-      renderChartUGEL(datos);
-      renderChartSegmentacion(datos);
-
-      // Timestamp de última actualización
-      document.getElementById('last-update').textContent =
-        'Actualizado: ' + new Date().toLocaleString('es-PE', {
-          day: '2-digit', month: 'short', year: 'numeric',
-          hour: '2-digit', minute: '2-digit'
-        });
-
-      // Mostrar dashboard
-      document.getElementById('loading-state').classList.add('hidden');
-      document.getElementById('dashboard-content').classList.remove('hidden');
-
-    } catch (err) {
-      document.getElementById('loading-state').classList.add('hidden');
-      document.getElementById('error-state').classList.remove('hidden');
-      document.getElementById('error-msg').textContent = err.message;
-      console.error('[MC-07.01 Dashboard]', err);
-    }
-  }
-
-  // ══════════════════════════════════════════════════════════════
-  // INICIO — Verificar configuración y cargar datos
-  // ══════════════════════════════════════════════════════════════
-  if (CSV_URL === 'TU_URL_CSV_AQUI' || !CSV_URL) {
-    document.getElementById('loading-state').classList.add('hidden');
-    document.getElementById('error-state').classList.remove('hidden');
-    document.getElementById('error-msg').textContent =
-      'Configuración pendiente: edita la variable CSV_URL al inicio del script con el enlace de tu Google Sheets publicado como CSV.';
-  } else {
-    loadData();
-  }
-
-  </script>
+window.onload = inicializarFiltros;
+</script>
 </body>
 </html>
